@@ -4,6 +4,8 @@ import 'auth/data/firebase_auth_repository.dart';
 import 'auth/domain/auth_repository.dart';
 import 'auth/presentation/auth_validators.dart';
 import 'auth/presentation/sign_up_screen.dart';
+import 'auth/presentation/reset_password_screen.dart';
+import 'auth/presentation/login_status_banner.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthRepository? authRepository;
@@ -28,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   late LoginController _controller;
+  String? _statusMessage;
 
   @override
   void initState() {
@@ -124,6 +127,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 32),
 
+                    if (_statusMessage != null)
+                      LoginStatusBanner(
+                        message: _statusMessage!,
+                        onDismiss: () => setState(() => _statusMessage = null),
+                      ),
+
                     if (_controller.errorMessage != null) ...[
                       Container(
                         padding: const EdgeInsets.all(12),
@@ -185,8 +194,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {
-                            // Handle forgot password
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ResetPasswordScreen(
+                                  authRepository: widget.authRepository,
+                                ),
+                              ),
+                            );
+                            if (result is String && result.isNotEmpty) {
+                              setState(() => _statusMessage = result);
+                              _controller.clearError();
+                            }
                           },
                           child: Text(
                             'Forgot password?',

@@ -59,4 +59,9 @@ class LoginController extends ChangeNotifier {
       return false;
     }
   }
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
 }
