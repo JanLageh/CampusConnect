@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:campusconnect/app/auth_gate.dart';
+import 'package:campusconnect/auth/application/auth_session_controller.dart';
 import 'package:campusconnect/auth/domain/auth_repository.dart';
 import 'package:campusconnect/auth/models/auth_session.dart';
 import 'package:campusconnect/login_screen.dart';
@@ -11,7 +12,6 @@ import 'dart:async';
 class FakeAuthRepository implements AuthRepository {
   final StreamController<AuthSession?> _controller = StreamController<AuthSession?>.broadcast();
 
-  // Add functionality to change state
   void emit(AuthSession? session) {
     _controller.add(session);
   }
@@ -37,14 +37,19 @@ class FakeAuthRepository implements AuthRepository {
 
 void main() {
   late FakeAuthRepository authRepository;
+  late AuthSessionController sessionController;
 
   setUp(() {
     authRepository = FakeAuthRepository();
+    sessionController = AuthSessionController(authRepository: authRepository);
   });
 
   Widget buildTestApp() {
     return MaterialApp(
-      home: AuthGate(authRepository: authRepository),
+      home: AuthGate(
+        authRepository: authRepository,
+        authSessionController: sessionController,
+      ),
     );
   }
 
