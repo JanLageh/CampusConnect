@@ -20,7 +20,9 @@ class _AppRootState extends State<AppRoot> {
   @override
   void initState() {
     super.initState();
-    _authSessionController = AuthSessionController(authRepository: widget.authRepository);
+    _authSessionController = AuthSessionController(
+      authRepository: widget.authRepository,
+    );
   }
 
   @override

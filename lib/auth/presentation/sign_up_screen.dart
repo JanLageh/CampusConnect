@@ -5,12 +5,17 @@ import '../data/firestore_user_profile_repository.dart';
 import '../domain/auth_repository.dart';
 import '../domain/user_profile_repository.dart';
 import 'auth_validators.dart';
+import 'verify_email_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   final AuthRepository? authRepository;
   final UserProfileRepository? userProfileRepository;
 
-  const SignUpScreen({super.key, this.authRepository, this.userProfileRepository});
+  const SignUpScreen({
+    super.key,
+    this.authRepository,
+    this.userProfileRepository,
+  });
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -26,7 +31,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   late LoginController _controller;
@@ -36,7 +42,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.initState();
     _controller = LoginController(
       authRepository: widget.authRepository ?? FirebaseAuthRepository(),
-      userProfileRepository: widget.userProfileRepository ?? FirestoreUserProfileRepository(),
+      userProfileRepository:
+          widget.userProfileRepository ?? FirestoreUserProfileRepository(),
     );
     _controller.addListener(() {
       setState(() {});
@@ -62,9 +69,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         // Navigate to Verify Email route
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => const Scaffold(
-              body: Center(child: Text('Verify Email')),
-            ),
+            builder: (_) =>
+                VerifyEmailScreen(authRepository: widget.authRepository),
           ),
         );
       }
@@ -85,7 +91,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 16.0,
+              ),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -116,7 +125,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: errorColor.withOpacity(0.1),
+                          color: errorColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -141,8 +150,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         hintText: 'student@horizon.edu',
-                        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
-                        prefixIcon: Icon(Icons.email_outlined, color: Colors.grey.shade500, size: 20),
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 15,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.email_outlined,
+                          color: Colors.grey.shade500,
+                          size: 20,
+                        ),
                         filled: true,
                         fillColor: surfaceHighest,
                         border: OutlineInputBorder(
@@ -153,7 +169,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                        ),
                       ),
                       keyboardType: TextInputType.emailAddress,
                       validator: AuthValidators.validateEmail,
@@ -175,8 +193,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: '••••••••',
-                        hintStyle: TextStyle(color: Colors.grey.shade400, letterSpacing: 2.0),
-                        prefixIcon: Icon(Icons.lock_outline, color: Colors.grey.shade500, size: 20),
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          letterSpacing: 2.0,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.lock_outline,
+                          color: Colors.grey.shade500,
+                          size: 20,
+                        ),
                         filled: true,
                         fillColor: surfaceHighest,
                         border: OutlineInputBorder(
@@ -187,7 +212,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                        ),
                       ),
                       validator: AuthValidators.validatePassword,
                     ),
@@ -208,8 +235,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: '••••••••',
-                        hintStyle: TextStyle(color: Colors.grey.shade400, letterSpacing: 2.0),
-                        prefixIcon: Icon(Icons.lock_outline, color: Colors.grey.shade500, size: 20),
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          letterSpacing: 2.0,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.lock_outline,
+                          color: Colors.grey.shade500,
+                          size: 20,
+                        ),
                         filled: true,
                         fillColor: surfaceHighest,
                         border: OutlineInputBorder(
@@ -220,7 +254,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                        ),
                       ),
                       validator: (value) {
                         if (value != _passwordController.text) {
@@ -248,11 +284,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ? const SizedBox(
                               width: 24,
                               height: 24,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
                             )
                           : const Text(
                               'Create Account',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                     ),
                   ],

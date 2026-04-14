@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:campusconnect/auth/presentation/sign_up_screen.dart';
+import 'package:campusconnect/auth/presentation/verify_email_screen.dart';
 import 'package:campusconnect/auth/domain/auth_repository.dart';
 import 'package:campusconnect/auth/domain/user_profile_repository.dart';
 import 'package:campusconnect/auth/models/auth_session.dart';
@@ -13,13 +14,21 @@ class MockAuthRepository implements AuthRepository {
   Stream<AuthSession?> observeAuthState() => const Stream.empty();
 
   @override
-  Future<AuthSession> signIn({required String email, required String password}) {
+  Future<AuthSession> signIn({
+    required String email,
+    required String password,
+  }) {
     throw UnimplementedError();
   }
 
   @override
-  Future<AuthSession> signUp({required String email, required String password}) async {
-    if (password.length >= 8 && RegExp(r'[a-zA-Z]').hasMatch(password) && RegExp(r'[0-9]').hasMatch(password)) {
+  Future<AuthSession> signUp({
+    required String email,
+    required String password,
+  }) async {
+    if (password.length >= 8 &&
+        RegExp(r'[a-zA-Z]').hasMatch(password) &&
+        RegExp(r'[0-9]').hasMatch(password)) {
       return AuthSession(uid: 'user123', email: email);
     }
     throw Exception('weak-password');
@@ -60,53 +69,71 @@ class MockUserProfileRepository implements UserProfileRepository {
 }
 
 void main() {
-  testWidgets('SignUpScreen enforces password policy', (WidgetTester tester) async {
+  testWidgets('SignUpScreen enforces password policy', (
+    WidgetTester tester,
+  ) async {
     final mockAuth = MockAuthRepository();
     final mockProfile = MockUserProfileRepository();
 
-    await tester.pumpWidget(MaterialApp(
-      home: SignUpScreen(
-        authRepository: mockAuth,
-        userProfileRepository: mockProfile,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SignUpScreen(
+          authRepository: mockAuth,
+          userProfileRepository: mockProfile,
+        ),
       ),
-    ));
+    );
 
-    await tester.enterText(find.byType(TextFormField).first, 'student@horizon.edu');
-    
+    await tester.enterText(
+      find.byType(TextFormField).first,
+      'student@horizon.edu',
+    );
+
     // Enter weak password
     await tester.enterText(find.byType(TextFormField).at(1), 'weak');
     await tester.enterText(find.byType(TextFormField).last, 'weak');
-    
+
     await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Password must be at least 8 characters long'), findsOneWidget);
+    expect(
+      find.text('Password must be at least 8 characters long'),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('Successful sign-up creates profile, sends verification, and navigates', (WidgetTester tester) async {
-    final mockAuth = MockAuthRepository();
-    final mockProfile = MockUserProfileRepository();
+  testWidgets(
+    'Successful sign-up creates profile, sends verification, and navigates',
+    (WidgetTester tester) async {
+      final mockAuth = MockAuthRepository();
+      final mockProfile = MockUserProfileRepository();
 
-    await tester.pumpWidget(MaterialApp(
-      home: SignUpScreen(
-        authRepository: mockAuth,
-        userProfileRepository: mockProfile,
-      ),
-    ));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SignUpScreen(
+            authRepository: mockAuth,
+            userProfileRepository: mockProfile,
+          ),
+        ),
+      );
 
-    await tester.enterText(find.byType(TextFormField).first, 'new@horizon.edu');
-    await tester.enterText(find.byType(TextFormField).at(1), 'Valid123');
-    await tester.enterText(find.byType(TextFormField).last, 'Valid123');
-    
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
-    await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byType(TextFormField).first,
+        'new@horizon.edu',
+      );
+      await tester.enterText(find.byType(TextFormField).at(1), 'Valid123');
+      await tester.enterText(find.byType(TextFormField).last, 'Valid123');
 
-    expect(mockProfile.lastBootstrapPayload, isNotNull);
-    expect(mockProfile.lastBootstrapPayload!['email'], 'new@horizon.edu');
-    expect(mockProfile.lastBootstrapPayload!['role'], 'student');
-    expect(mockAuth.sendVerificationEmailCalled, isTrue);
-    
-    // Check navigation to verify email
-    expect(find.text('Verify Email'), findsOneWidget);
-  });
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
+      await tester.pumpAndSettle();
+
+      expect(mockProfile.lastBootstrapPayload, isNotNull);
+      expect(mockProfile.lastBootstrapPayload!['email'], 'new@horizon.edu');
+      expect(mockProfile.lastBootstrapPayload!['role'], 'student');
+      expect(mockAuth.sendVerificationEmailCalled, isTrue);
+
+      // Check navigation to verify email
+      expect(find.byType(VerifyEmailScreen), findsOneWidget);
+    },
+  );
 }

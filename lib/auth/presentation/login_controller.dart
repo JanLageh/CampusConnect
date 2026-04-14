@@ -6,7 +6,7 @@ import 'auth_error_mapper.dart';
 class LoginController extends ChangeNotifier {
   final AuthRepository _authRepository;
   final UserProfileRepository? _userProfileRepository;
-  
+
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -16,8 +16,8 @@ class LoginController extends ChangeNotifier {
   LoginController({
     required AuthRepository authRepository,
     UserProfileRepository? userProfileRepository,
-  })  : _authRepository = authRepository,
-        _userProfileRepository = userProfileRepository;
+  }) : _authRepository = authRepository,
+       _userProfileRepository = userProfileRepository;
 
   Future<bool> signIn(String email, String password) async {
     _isLoading = true;
@@ -43,12 +43,18 @@ class LoginController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final session = await _authRepository.signUp(email: email, password: password);
+      final session = await _authRepository.signUp(
+        email: email,
+        password: password,
+      );
       if (_userProfileRepository != null) {
-        await _userProfileRepository!.bootstrapUserProfile(uid: session.uid, email: session.email);
+        await _userProfileRepository.bootstrapUserProfile(
+          uid: session.uid,
+          email: session.email,
+        );
       }
       await _authRepository.sendVerificationEmail();
-      
+
       _isLoading = false;
       notifyListeners();
       return true;

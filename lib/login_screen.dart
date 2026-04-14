@@ -69,7 +69,10 @@ class _LoginScreenState extends State<LoginScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 32.0,
+              ),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -105,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     // Welcome Text
                     Text(
                       'Welcome Back',
@@ -137,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: errorColor.withOpacity(0.1),
+                          color: errorColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -162,8 +165,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         hintText: 'student@horizon.edu',
-                        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
-                        prefixIcon: Icon(Icons.email_outlined, color: Colors.grey.shade500, size: 20),
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 15,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.email_outlined,
+                          color: Colors.grey.shade500,
+                          size: 20,
+                        ),
                         filled: true,
                         fillColor: surfaceHighest,
                         border: OutlineInputBorder(
@@ -174,7 +184,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                        ),
                       ),
                       keyboardType: TextInputType.emailAddress,
                       validator: AuthValidators.validateEmail,
@@ -225,8 +237,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: '••••••••',
-                        hintStyle: TextStyle(color: Colors.grey.shade400, letterSpacing: 2.0),
-                        prefixIcon: Icon(Icons.lock_outline, color: Colors.grey.shade500, size: 20),
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          letterSpacing: 2.0,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.lock_outline,
+                          color: Colors.grey.shade500,
+                          size: 20,
+                        ),
                         filled: true,
                         fillColor: surfaceHighest,
                         border: OutlineInputBorder(
@@ -237,14 +256,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                        ),
                       ),
                       validator: (v) {
-                         if (v == null || v.isEmpty) return 'Password is required';
-                         return null;
+                        if (v == null || v.isEmpty) {
+                          return 'Password is required';
+                        }
+                        return null;
                       },
                     ),
-                    
+
                     const SizedBox(height: 32),
 
                     // Sign In Button
@@ -263,14 +286,20 @@ class _LoginScreenState extends State<LoginScreen> {
                           ? const SizedBox(
                               width: 24,
                               height: 24,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
                             )
                           : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: const [
                                 Text(
                                   'Sign In',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 SizedBox(width: 8),
                                 Icon(Icons.arrow_forward, size: 20),
@@ -287,11 +316,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Text(
                             "Don't have an account? ",
-                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 13,
+                            ),
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpScreen()));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const SignUpScreen(),
+                                ),
+                              );
                             },
                             child: Text(
                               'Sign up',
@@ -305,7 +342,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
 
                     // Footer

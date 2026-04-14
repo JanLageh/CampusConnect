@@ -10,7 +10,8 @@ import 'package:campusconnect/auth/presentation/verify_email_screen.dart';
 import 'dart:async';
 
 class FakeAuthRepository implements AuthRepository {
-  final StreamController<AuthSession?> _controller = StreamController<AuthSession?>.broadcast();
+  final StreamController<AuthSession?> _controller =
+      StreamController<AuthSession?>.broadcast();
 
   void emit(AuthSession? session) {
     _controller.add(session);
@@ -20,16 +21,23 @@ class FakeAuthRepository implements AuthRepository {
   Stream<AuthSession?> observeAuthState() => _controller.stream;
 
   @override
-  Future<AuthSession> signIn({required String email, required String password}) => throw UnimplementedError();
+  Future<AuthSession> signIn({
+    required String email,
+    required String password,
+  }) => throw UnimplementedError();
 
   @override
-  Future<AuthSession> signUp({required String email, required String password}) => throw UnimplementedError();
+  Future<AuthSession> signUp({
+    required String email,
+    required String password,
+  }) => throw UnimplementedError();
 
   @override
   Future<void> sendVerificationEmail() => throw UnimplementedError();
 
   @override
-  Future<void> sendPasswordReset({required String email}) => throw UnimplementedError();
+  Future<void> sendPasswordReset({required String email}) =>
+      throw UnimplementedError();
 
   @override
   Future<void> signOut() => throw UnimplementedError();
@@ -53,7 +61,9 @@ void main() {
     );
   }
 
-  testWidgets('redirects to LoginScreen when unauthenticated', (WidgetTester tester) async {
+  testWidgets('redirects to LoginScreen when unauthenticated', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(buildTestApp());
     authRepository.emit(null);
     await tester.pumpAndSettle();
@@ -62,21 +72,77 @@ void main() {
     expect(find.byType(ProtectedModuleRouter), findsNothing);
   });
 
-  testWidgets('redirects to VerifyEmailScreen when unverified', (WidgetTester tester) async {
+  testWidgets('redirects to VerifyEmailScreen when unverified', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(buildTestApp());
-    authRepository.emit(const AuthSession(uid: '123', email: 'test@horizon.edu', isEmailVerified: false));
+    authRepository.emit(
+      const AuthSession(
+        uid: '123',
+        email: 'test@horizon.edu',
+        isEmailVerified: false,
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(VerifyEmailScreen), findsOneWidget);
     expect(find.byType(ProtectedModuleRouter), findsNothing);
   });
 
-  testWidgets('redirects to ProtectedModuleRouter when verified', (WidgetTester tester) async {
+  testWidgets('redirects to ProtectedModuleRouter when verified', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(buildTestApp());
-    authRepository.emit(const AuthSession(uid: '123', email: 'test@horizon.edu', isEmailVerified: true));
+    authRepository.emit(
+      const AuthSession(
+        uid: '123',
+        email: 'test@horizon.edu',
+        isEmailVerified: true,
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(ProtectedModuleRouter), findsOneWidget);
     expect(find.byType(LoginScreen), findsNothing);
+  });
+
+  testWidgets(
+    'ProtectedModuleRouter enforces hard redirect when bypassed with null session',
+    (WidgetTester tester) async {
+      final fakeRepo = FakeAuthRepository();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          // Notice we are NOT using AuthGate here to simulate a bypass deep link
+          home: ProtectedModuleRouter(authRepository: fakeRepo),
+        ),
+      );
+
+      fakeRepo.emit(null);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(LoginScreen), findsOneWidget);
+    },
+  );
+
+  testWidgets('ProtectedModuleRouter blocks access when unverified', (
+    WidgetTester tester,
+  ) async {
+    final fakeRepo = FakeAuthRepository();
+
+    await tester.pumpWidget(
+      MaterialApp(home: ProtectedModuleRouter(authRepository: fakeRepo)),
+    );
+
+    fakeRepo.emit(
+      const AuthSession(
+        uid: '123',
+        email: 'test@horizon.edu',
+        isEmailVerified: false,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(VerifyEmailScreen), findsOneWidget);
   });
 }
