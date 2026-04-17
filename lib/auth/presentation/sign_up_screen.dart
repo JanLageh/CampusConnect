@@ -1,42 +1,49 @@
 import 'package:flutter/material.dart';
-import 'auth/presentation/login_controller.dart';
-import 'auth/data/firebase_auth_repository.dart';
-import 'auth/domain/auth_repository.dart';
-import 'auth/presentation/auth_validators.dart';
-import 'auth/presentation/sign_up_screen.dart';
-import 'auth/presentation/reset_password_screen.dart';
-import 'auth/presentation/login_status_banner.dart';
+import 'login_controller.dart';
+import '../data/firebase_auth_repository.dart';
+import '../data/firestore_user_profile_repository.dart';
+import '../domain/auth_repository.dart';
+import '../domain/user_profile_repository.dart';
+import 'auth_validators.dart';
+import 'verify_email_screen.dart';
 
-class LoginScreen extends StatefulWidget {
+class SignUpScreen extends StatefulWidget {
   final AuthRepository? authRepository;
+  final UserProfileRepository? userProfileRepository;
 
-  const LoginScreen({super.key, this.authRepository});
+  const SignUpScreen({
+    super.key,
+    this.authRepository,
+    this.userProfileRepository,
+  });
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   final Color primaryDarkBlue = const Color(0xFF001e40);
-  final Color primaryContainer = const Color(0xFF003366);
   final Color backgroundSurface = const Color(0xFFf8f9fa);
   final Color surfaceHighest = const Color(0xFFffffff);
-  final Color secondaryContainer = const Color(0xFF90efef);
   final Color textDark = const Color(0xFF191c1d);
+  final Color secondaryContainer = const Color(0xFF90efef);
   final Color errorColor = const Color(0xFFba1a1a);
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   late LoginController _controller;
-  String? _statusMessage;
 
   @override
   void initState() {
     super.initState();
     _controller = LoginController(
       authRepository: widget.authRepository ?? FirebaseAuthRepository(),
+      userProfileRepository:
+          widget.userProfileRepository ?? FirestoreUserProfileRepository(),
     );
     _controller.addListener(() {
       setState(() {});
@@ -48,15 +55,25 @@ class _LoginScreenState extends State<LoginScreen> {
     _controller.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleSignIn() async {
+  Future<void> _handleSignUp() async {
     if (_formKey.currentState?.validate() ?? false) {
-      await _controller.signIn(
+      final success = await _controller.signUp(
         _emailController.text.trim(),
         _passwordController.text,
       );
+      if (success && mounted) {
+        // Navigate to Verify Email route
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) =>
+                VerifyEmailScreen(authRepository: widget.authRepository),
+          ),
+        );
+      }
     }
   }
 
@@ -64,6 +81,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundSurface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: const BackButton(color: Colors.black87),
+      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -71,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
                 horizontal: 24.0,
-                vertical: 32.0,
+                vertical: 16.0,
               ),
               child: Form(
                 key: _formKey,
@@ -79,39 +101,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo
-                    Center(
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: primaryDarkBlue,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.school_outlined,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // School Title
                     Text(
-                      'ACLC College of Mandaue',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: primaryDarkBlue,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Welcome Text
-                    Text(
-                      'Welcome Back',
+                      'Create Account',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 26,
@@ -121,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Log in to your campus dashboard.',
+                      'Sign up to access your campus dashboard.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -129,12 +120,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-
-                    if (_statusMessage != null)
-                      LoginStatusBanner(
-                        message: _statusMessage!,
-                        onDismiss: () => setState(() => _statusMessage = null),
-                      ),
 
                     if (_controller.errorMessage != null) ...[
                       Container(
@@ -193,43 +178,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Password Field Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Password',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: textDark,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ResetPasswordScreen(
-                                  authRepository: widget.authRepository,
-                                ),
-                              ),
-                            );
-                            if (result is String && result.isNotEmpty) {
-                              setState(() => _statusMessage = result);
-                              _controller.clearError();
-                            }
-                          },
-                          child: Text(
-                            'Forgot password?',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF006a6a),
-                            ),
-                          ),
-                        ),
-                      ],
+                    // Password Field
+                    Text(
+                      'Password',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: textDark,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
@@ -260,9 +216,51 @@ class _LoginScreenState extends State<LoginScreen> {
                           vertical: 16,
                         ),
                       ),
-                      validator: (v) {
-                        if (v == null || v.isEmpty) {
-                          return 'Password is required';
+                      validator: AuthValidators.validatePassword,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Confirm Password Field
+                    Text(
+                      'Confirm Password',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: '••••••••',
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          letterSpacing: 2.0,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.lock_outline,
+                          color: Colors.grey.shade500,
+                          size: 20,
+                        ),
+                        filled: true,
+                        fillColor: surfaceHighest,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value != _passwordController.text) {
+                          return 'Passwords do not match';
                         }
                         return null;
                       },
@@ -270,9 +268,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 32),
 
-                    // Sign In Button
+                    // Sign Up Button
                     ElevatedButton(
-                      onPressed: _controller.isLoading ? null : _handleSignIn,
+                      onPressed: _controller.isLoading ? null : _handleSignUp,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryDarkBlue,
                         foregroundColor: Colors.white,
@@ -291,70 +289,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 strokeWidth: 2,
                               ),
                             )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Text(
-                                  'Sign In',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                                Icon(Icons.arrow_forward, size: 20),
-                              ],
-                            ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Sign Up Text
-                    Center(
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        children: [
-                          Text(
-                            "Don't have an account? ",
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 13,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const SignUpScreen(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              'Sign up',
+                          : const Text(
+                              'Create Account',
                               style: TextStyle(
-                                color: const Color(0xFF006a6a),
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 13,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Footer
-                    Text(
-                      '© 2024 ACLC COLLEGE OF MANDAUE • CSO VERIFIED',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade400,
-                        letterSpacing: 0.5,
-                      ),
                     ),
                   ],
                 ),
