@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -155,7 +156,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Sign In Button
                   ElevatedButton(
                     onPressed: () {
-                      // Handle Sign In
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryDarkBlue,
