@@ -1,19 +1,129 @@
 import 'package:flutter/material.dart';
 import 'chat_detail_screen.dart';
 
-class ChatsScreen extends StatelessWidget {
+class ChatsScreen extends StatefulWidget {
   const ChatsScreen({super.key});
 
+  @override
+  State<ChatsScreen> createState() => _ChatsScreenState();
+}
+
+class _ChatsScreenState extends State<ChatsScreen> {
   final Color primaryDarkBlue = const Color(0xFF091C31);
   final Color secondaryTeal = const Color(0xFF007A75);
   final Color fieldBackground = const Color(0xFFF3F4F6);
+
+  String _searchQuery = "";
+
+  final List<Map<String, dynamic>> _allChats = [
+    {
+      "title": "Bio-Chemistry Study Group",
+      "subtitle": "Sarah: Does anyone have the...",
+      "time": "10:42 AM",
+      "unreadCount": 2,
+      "color": const Color(0xFF091C31),
+      "icon": Icons.science,
+      "imageUrl": "https://picsum.photos/seed/bio/200/200"
+    },
+    {
+      "title": "CS Project",
+      "subtitle": "Alex: Just pushed the latest...",
+      "time": "8:15 AM",
+      "unreadCount": 1,
+      "color": const Color(0xFF1F2937),
+      "icon": Icons.computer,
+      "imageUrl": "https://picsum.photos/seed/cs/200/200"
+    },
+    {
+      "title": "Tennis Club",
+      "subtitle": "Marcus: Great practice today...",
+      "time": "Yesterday",
+      "unreadCount": 0,
+      "color": const Color(0xFF2E6152),
+      "icon": Icons.sports_tennis,
+      "imageUrl": "https://picsum.photos/seed/tennis/200/200"
+    },
+    {
+      "title": "Ethics in AI Seminar",
+      "subtitle": "You: I'll share the reading list later...",
+      "time": "Monday",
+      "unreadCount": 0,
+      "color": const Color(0xFF4A403A),
+      "icon": Icons.psychology,
+      "imageUrl": "https://picsum.photos/seed/ethics/200/200"
+    },
+    {
+      "title": "Campus Housing",
+      "subtitle": "Admin: Maintenance will be checkin...",
+      "time": "2 days ago",
+      "unreadCount": 0,
+      "color": const Color(0xFF5E543D),
+      "icon": Icons.house,
+      "imageUrl": "https://picsum.photos/seed/house/200/200"
+    },
+  ];
+
+  void _showNewGroupModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                "Create New Group",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: primaryDarkBlue,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: "Group Name",
+                  filled: true,
+                  fillColor: fieldBackground,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: secondaryTeal,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text("Create", style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () => _showNewGroupModal(context),
         backgroundColor: const Color(0xFF006B65),
         elevation: 4,
         shape: RoundedRectangleBorder(
@@ -59,6 +169,11 @@ class ChatsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: TextField(
+                onChanged: (val) {
+                  setState(() {
+                    _searchQuery = val;
+                  });
+                },
                 decoration: InputDecoration(
                   hintText: 'Search conversations...',
                   hintStyle: TextStyle(color: Colors.grey.shade500),
@@ -110,56 +225,43 @@ class ChatsScreen extends StatelessWidget {
             
             // Chat List
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                children: [
-                  _buildChatItem(
-                    context: context,
-                    title: "Bio-Chemistry Study Group",
-                    subtitle: "Sarah: Does anyone have the...",
-                    time: "10:42 AM",
-                    unreadCount: 2,
-                    color: primaryDarkBlue,
-                    icon: Icons.science,
-                  ),
-                  _buildChatItem(
-                    context: context,
-                    title: "CS Project",
-                    subtitle: "Alex: Just pushed the latest...",
-                    time: "8:15 AM",
-                    unreadCount: 1,
-                    color: const Color(0xFF1F2937),
-                    icon: Icons.computer,
-                  ),
-                  _buildChatItem(
-                    context: context,
-                    title: "Tennis Club",
-                    subtitle: "Marcus: Great practice today...",
-                    time: "Yesterday",
-                    unreadCount: 0,
-                    color: const Color(0xFF2E6152),
-                    icon: Icons.sports_tennis,
-                  ),
-                  _buildChatItem(
-                    context: context,
-                    title: "Ethics in AI Seminar",
-                    subtitle: "You: I'll share the reading list later...",
-                    time: "Monday",
-                    unreadCount: 0,
-                    color: const Color(0xFF4A403A),
-                    icon: Icons.psychology,
-                  ),
-                  _buildChatItem(
-                    context: context,
-                    title: "Campus Housing",
-                    subtitle: "Admin: Maintenance will be checkin...",
-                    time: "2 days ago",
-                    unreadCount: 0,
-                    color: const Color(0xFF5E543D),
-                    icon: Icons.house,
-                  ),
-                  const SizedBox(height: 80), // Padding for FAB and BottomNav
-                ],
+              child: Builder(
+                builder: (context) {
+                  final filteredChats = _allChats.where((chat) {
+                    final title = chat["title"].toString().toLowerCase();
+                    return title.contains(_searchQuery.toLowerCase());
+                  }).toList();
+
+                  if (filteredChats.isEmpty) {
+                    return Center(
+                      child: Text(
+                        "No conversations found.",
+                        style: TextStyle(color: Colors.grey.shade500),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    itemCount: filteredChats.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == filteredChats.length) {
+                        return const SizedBox(height: 80);
+                      }
+                      final chat = filteredChats[index];
+                      return _buildChatItem(
+                        context: context,
+                        title: chat["title"],
+                        subtitle: chat["subtitle"],
+                        time: chat["time"],
+                        unreadCount: chat["unreadCount"],
+                        color: chat["color"],
+                        icon: chat["icon"],
+                        imageUrl: chat["imageUrl"],
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
@@ -176,6 +278,7 @@ class ChatsScreen extends StatelessWidget {
     required int unreadCount,
     required Color color,
     required IconData icon,
+    String? imageUrl,
   }) {
     return GestureDetector(
       onTap: () {
@@ -208,7 +311,7 @@ class ChatsScreen extends StatelessWidget {
       child: Row(
         children: [
           Stack(
-            alignment: Alignment.bottomRight,
+            clipBehavior: Clip.none,
             children: [
               Container(
                 width: 56,
@@ -216,17 +319,27 @@ class ChatsScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: color,
                   borderRadius: BorderRadius.circular(16),
+                  image: imageUrl != null && imageUrl.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(imageUrl),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
-                child: Icon(icon, color: Colors.white, size: 24),
+                child: (imageUrl == null || imageUrl.isEmpty) ? Icon(icon, color: Colors.white, size: 24) : null,
               ),
               if (unreadCount > 0)
-                Container(
-                  width: 14,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade500,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                Positioned(
+                  bottom: -2,
+                  right: -2,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade500,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
                   ),
                 )
             ],

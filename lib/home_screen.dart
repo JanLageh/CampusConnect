@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'chats_screen.dart';
+import 'chat_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -220,12 +221,18 @@ class DashboardTab extends StatelessWidget {
             const SizedBox(height: 24),
             
             // Next Event Card
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: primaryDarkBlue,
-                borderRadius: BorderRadius.circular(24),
-              ),
+            GestureDetector(
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Opening Event Details...")),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: primaryDarkBlue,
+                  borderRadius: BorderRadius.circular(24),
+                ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -303,16 +310,30 @@ class DashboardTab extends StatelessWidget {
                 ],
               ),
             ),
+            ),
             
             const SizedBox(height: 24),
             
             // Group Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChatDetailScreen(
+                      chatTitle: "Bio-Chemistry Study Group",
+                      chatColor: Color(0xFF007A75),
+                      chatIcon: Icons.people,
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.02),
                     blurRadius: 15,
@@ -382,16 +403,23 @@ class DashboardTab extends StatelessWidget {
                 ],
               ),
             ),
+            ),
             
             const SizedBox(height: 24),
             
             // Document Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
+            GestureDetector(
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Downloading Document...")),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.02),
                     blurRadius: 15,
@@ -448,6 +476,7 @@ class DashboardTab extends StatelessWidget {
                   )
                 ],
               ),
+            ),
             ),
             
             const SizedBox(height: 24),
