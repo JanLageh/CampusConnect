@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/user_entity.dart';
 
 /// Authentication state representing the current user status

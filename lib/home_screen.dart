@@ -5,6 +5,7 @@ import 'chat_detail_screen.dart';
 import 'features/profile/profile_screen_riverpod.dart';
 import 'providers/auth_providers.dart';
 import 'appwrite_test_helper.dart';
+import 'auth/domain/user_display_name.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -168,7 +169,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateNotifierProvider);
-    final userName = authState.user?.fullName ?? 'Guest';
+    final userName = authState.user?.displayName ?? 'Guest';
 
     return SafeArea(
       child: SingleChildScrollView(

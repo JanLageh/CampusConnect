@@ -1,15 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../auth/di/auth_dependencies.dart';
 import '../auth/domain/exceptions/auth_exception.dart';
 import '../auth/domain/exceptions/network_exception.dart';
 import '../auth/domain/exceptions/service_exception.dart';
 import '../auth/domain/exceptions/validation_exception.dart';
 import '../auth/presentation/utils/error_message_mapper.dart';
-
-/// Provider for SignInUseCase
-final signInUseCaseProvider = Provider((ref) {
-  return AuthDependencies().signInUseCase;
-});
+import 'auth_providers.dart';
 
 /// State class for login screen
 class LoginState {
@@ -38,7 +33,7 @@ class LoginNotifier extends Notifier<LoginState> {
     try {
       final signInUseCase = ref.read(signInUseCaseProvider);
       await signInUseCase.execute(email: email, password: password);
-      // Success - state will be updated by authStateProvider
+      // Success - authStateNotifierProvider updates from Firebase auth changes.
       state = state.copyWith(isLoading: false);
     } on ValidationException catch (e) {
       state = state.copyWith(

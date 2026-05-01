@@ -19,6 +19,7 @@ import '../auth/domain/use_cases/register_use_case.dart';
 import '../auth/domain/use_cases/sign_out_use_case.dart';
 import '../auth/domain/use_cases/reset_password_use_case.dart';
 import '../auth/domain/use_cases/get_current_user_use_case.dart';
+import '../auth/domain/use_cases/update_user_profile_use_case.dart';
 
 // Entities
 import '../auth/domain/entities/user_entity.dart';
@@ -113,11 +114,15 @@ final resetPasswordUseCaseProvider = Provider<ResetPasswordUseCase>((ref) {
 /// Provider for GetCurrentUserUseCase
 final getCurrentUserUseCaseProvider = Provider<GetCurrentUserUseCase>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
+  return GetCurrentUserUseCase(authRepository: authRepository);
+});
+
+/// Provider for UpdateUserProfileUseCase
+final updateUserProfileUseCaseProvider = Provider<UpdateUserProfileUseCase>((
+  ref,
+) {
   final userRepository = ref.watch(userRepositoryProvider);
-  return GetCurrentUserUseCase(
-    authRepository: authRepository,
-    userRepository: userRepository,
-  );
+  return UpdateUserProfileUseCase(userRepository: userRepository);
 });
 
 // ============================================================================
@@ -130,7 +135,7 @@ final authStateNotifierProvider =
     NotifierProvider<AuthStateNotifier, AuthState>(AuthStateNotifier.new);
 
 /// Convenience provider to get current user
-final currentUserProvider = Provider((ref) {
+final currentUserProvider = Provider<UserEntity?>((ref) {
   return ref.watch(authStateNotifierProvider).user;
 });
 
@@ -161,6 +166,10 @@ class AuthStateNotifier extends Notifier<AuthState> {
 
     // Initialize authentication state
     _initialize();
+
+    ref.onDispose(() {
+      _authStateSubscription?.cancel();
+    });
 
     // Return initial loading state
     return const AuthState(isLoading: true);
@@ -224,10 +233,5 @@ class AuthStateNotifier extends Notifier<AuthState> {
   /// Clear any error state
   void clearError() {
     state = state.copyWith(clearError: true);
-  }
-
-  /// Clean up subscription when notifier is disposed
-  void cleanup() {
-    _authStateSubscription?.cancel();
   }
 }

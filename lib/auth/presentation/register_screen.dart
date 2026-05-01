@@ -1,57 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/login_state_provider.dart';
+import '../../providers/register_state_provider.dart';
 import '../domain/validators/auth_validator.dart';
-import 'register_screen.dart';
-import 'reset_password_screen_riverpod.dart';
-import 'login_status_banner.dart';
+import 'login_screen_riverpod.dart';
 
-class LoginScreenRiverpod extends ConsumerStatefulWidget {
-  const LoginScreenRiverpod({super.key});
+class RegisterScreen extends ConsumerStatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  ConsumerState<LoginScreenRiverpod> createState() =>
-      _LoginScreenRiverpodState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final Color primaryDarkBlue = const Color(0xFF001e40);
-  final Color primaryContainer = const Color(0xFF003366);
   final Color backgroundSurface = const Color(0xFFf8f9fa);
-  final Color surfaceHighest = const Color(0xFFffffff);
-  final Color secondaryContainer = const Color(0xFF90efef);
+  final Color fieldBackground = const Color(0xFFF3F4F6);
   final Color textDark = const Color(0xFF191c1d);
   final Color errorColor = const Color(0xFFba1a1a);
-  final Color fieldBackground = const Color(0xFFF3F4F6);
 
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _studentIdController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  String? _statusMessage;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
+    _fullNameController.dispose();
     _emailController.dispose();
+    _studentIdController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleSignIn() async {
+  Future<void> _handleRegister() async {
     if (_formKey.currentState?.validate() ?? false) {
-      await ref
-          .read(loginProvider.notifier)
-          .signIn(_emailController.text.trim(), _passwordController.text);
+      final success = await ref
+          .read(registerProvider.notifier)
+          .register(
+            fullName: _fullNameController.text.trim(),
+            email: _emailController.text.trim(),
+            studentId: _studentIdController.text.trim(),
+            password: _passwordController.text,
+          );
+
+      if (success && mounted) {
+        // Navigation is handled by AuthGate based on auth state changes
+        // The AuthGate will automatically navigate to home when user is authenticated
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Watch the login state
-    final loginState = ref.watch(loginProvider);
+    final registerState = ref.watch(registerProvider);
 
     return Scaffold(
       backgroundColor: backgroundSurface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const LoginScreenRiverpod()),
+            );
+          },
+        ),
+      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -59,7 +78,7 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
                 horizontal: 24.0,
-                vertical: 32.0,
+                vertical: 16.0,
               ),
               child: Form(
                 key: _formKey,
@@ -84,22 +103,9 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // School Title
-                    Text(
-                      'ACLC College of Mandaue',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: primaryDarkBlue,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
 
-                    // Welcome Text
                     Text(
-                      'Welcome Back',
+                      'Create Account',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 26,
@@ -109,7 +115,7 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Log in to your campus dashboard.',
+                      'Sign up to access your campus dashboard.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -118,26 +124,82 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                     ),
                     const SizedBox(height: 32),
 
-                    if (_statusMessage != null)
-                      LoginStatusBanner(
-                        message: _statusMessage!,
-                        onDismiss: () => setState(() => _statusMessage = null),
-                      ),
-
-                    if (loginState.errorMessage != null) ...[
+                    // Error Message Display
+                    if (registerState.errorMessage != null) ...[
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: errorColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          loginState.errorMessage!,
-                          style: TextStyle(color: errorColor, fontSize: 13),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: errorColor,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                registerState.errorMessage!,
+                                style: TextStyle(
+                                  color: errorColor,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 16),
                     ],
+
+                    // Full Name Field
+                    Text(
+                      'Full Name',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _fullNameController,
+                      decoration: InputDecoration(
+                        hintText: 'Juan Dela Cruz',
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 15,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.person_outline,
+                          color: Colors.grey.shade500,
+                          size: 20,
+                        ),
+                        filled: true,
+                        fillColor: fieldBackground,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                        ),
+                      ),
+                      keyboardType: TextInputType.name,
+                      textCapitalization: TextCapitalization.words,
+                      validator: (value) => AuthValidator.validateRequired(
+                        value ?? '',
+                        'Full name',
+                      ),
+                    ),
+                    const SizedBox(height: 20),
 
                     // Email Field
                     Text(
@@ -182,47 +244,63 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Password Field Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Password',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: textDark,
-                          ),
+                    // Student ID Field
+                    Text(
+                      'Student ID',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _studentIdController,
+                      decoration: InputDecoration(
+                        hintText: 'ABC123456',
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 15,
                         ),
-                        GestureDetector(
-                          onTap: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    const ResetPasswordScreenRiverpod(),
-                              ),
-                            );
-                            if (result is String && result.isNotEmpty) {
-                              setState(() => _statusMessage = result);
-                              ref.read(loginProvider.notifier).clearError();
-                            }
-                          },
-                          child: Text(
-                            'Forgot password?',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF006a6a),
-                            ),
-                          ),
+                        prefixIcon: Icon(
+                          Icons.badge_outlined,
+                          color: Colors.grey.shade500,
+                          size: 20,
                         ),
-                      ],
+                        filled: true,
+                        fillColor: fieldBackground,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                        ),
+                      ),
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.characters,
+                      validator: (value) =>
+                          AuthValidator.validateStudentId(value ?? ''),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Password Field
+                    Text(
+                      'Password',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: textDark,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _passwordController,
-                      obscureText: true,
+                      obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         hintText: '••••••••',
                         hintStyle: TextStyle(
@@ -233,6 +311,20 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                           Icons.lock_outline,
                           color: Colors.grey.shade500,
                           size: 20,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: Colors.grey.shade500,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
                         ),
                         filled: true,
                         fillColor: fieldBackground,
@@ -254,9 +346,11 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
 
                     const SizedBox(height: 32),
 
-                    // Sign In Button
+                    // Register Button
                     ElevatedButton(
-                      onPressed: loginState.isLoading ? null : _handleSignIn,
+                      onPressed: registerState.isLoading
+                          ? null
+                          : _handleRegister,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryDarkBlue,
                         foregroundColor: Colors.white,
@@ -266,7 +360,7 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                         ),
                         elevation: 0,
                       ),
-                      child: loginState.isLoading
+                      child: registerState.isLoading
                           ? const SizedBox(
                               width: 24,
                               height: 24,
@@ -279,7 +373,7 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: const [
                                 Text(
-                                  'Sign In',
+                                  'Register',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -291,95 +385,15 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                             ),
                     ),
 
-                    const SizedBox(height: 32),
-
-                    // Or Continue With Divider
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Divider(
-                            color: Colors.grey.shade300,
-                            thickness: 1,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            'OR CONTINUE WITH',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade400,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Divider(
-                            color: Colors.grey.shade300,
-                            thickness: 1,
-                          ),
-                        ),
-                      ],
-                    ),
-
                     const SizedBox(height: 24),
 
-                    // Social Logins (Student Number)
-                    ElevatedButton(
-                      onPressed: () {
-                        // Handle Student Number login
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFAFAFA),
-                        foregroundColor: textDark,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: Colors.grey.shade200),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 16,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey.shade300),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.person,
-                                size: 10,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Login with Student Number',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Sign Up Text
+                    // Sign In Link
                     Center(
                       child: Wrap(
                         alignment: WrapAlignment.center,
                         children: [
                           Text(
-                            "Don't have an account? ",
+                            'Already have an account? ',
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 13,
@@ -387,15 +401,14 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                context,
+                              Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
-                                  builder: (_) => const RegisterScreen(),
+                                  builder: (_) => const LoginScreenRiverpod(),
                                 ),
                               );
                             },
                             child: Text(
-                              'Sign up',
+                              'Sign in',
                               style: TextStyle(
                                 color: const Color(0xFF006a6a),
                                 fontWeight: FontWeight.bold,
