@@ -26,11 +26,11 @@ class AppwriteStorageService {
         permissions: permissions,
       );
       // ignore: avoid_print
-      print('✅ File uploaded successfully: ${result.$id}');
+      print('File uploaded successfully: ${result.$id}');
       return result;
     } catch (e) {
       // ignore: avoid_print
-      print('❌ File upload failed: $e');
+      print('File upload failed: $e');
       rethrow;
     }
   }
@@ -75,10 +75,10 @@ class AppwriteStorageService {
     try {
       await _storage.deleteFile(bucketId: bucketId, fileId: fileId);
       // ignore: avoid_print
-      print('✅ File deleted successfully: $fileId');
+      print('File deleted successfully: $fileId');
     } catch (e) {
       // ignore: avoid_print
-      print('❌ File deletion failed: $e');
+      print('File deletion failed: $e');
       rethrow;
     }
   }
@@ -97,11 +97,11 @@ class AppwriteStorageService {
         queries: queries,
       );
       // ignore: avoid_print
-      print('✅ Retrieved ${result.files.length} files');
+      print('Retrieved ${result.files.length} files');
       return result;
     } catch (e) {
       // ignore: avoid_print
-      print('❌ Failed to list files: $e');
+      print('Failed to list files: $e');
       rethrow;
     }
   }
@@ -119,7 +119,37 @@ class AppwriteStorageService {
       return result;
     } catch (e) {
       // ignore: avoid_print
-      print('❌ Failed to get file: $e');
+      print('Failed to get file: $e');
+      rethrow;
+    }
+  }
+
+  /// Upload an image to the chat_attachments bucket and return the public view URL.
+  ///
+  /// [file] - The image file to upload
+  /// [fileId] - Unique ID for the file (use ID.unique() for auto-generation)
+  Future<String> uploadChatImage({
+    required InputFile file,
+    required String fileId,
+  }) async {
+    try {
+      final bucketId = AppwriteConfig.chatAttachmentsBucketId;
+
+      // Upload the file with public read permissions
+      await uploadFile(
+        bucketId: bucketId,
+        fileId: fileId,
+        file: file,
+        permissions: [
+          'read("any")', // Allow anyone to read the file
+        ],
+      );
+
+      // Return the public view URL
+      return getFileView(bucketId: bucketId, fileId: fileId);
+    } catch (e) {
+      // ignore: avoid_print
+      print('Failed to upload chat image: $e');
       rethrow;
     }
   }
