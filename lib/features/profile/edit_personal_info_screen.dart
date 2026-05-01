@@ -148,7 +148,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
                               backgroundImage: NetworkImage(
                                 _photoURLController.text.trim(),
                               ),
-                              onBackgroundImageError: (_, __) {},
+                              onBackgroundImageError: (_, _) {},
                             )
                           : CircleAvatar(
                               radius: 60,

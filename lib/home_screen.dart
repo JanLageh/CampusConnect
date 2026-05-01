@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'chats_screen.dart';
 import 'chat_detail_screen.dart';
 import 'features/profile/profile_screen_riverpod.dart';
+import 'providers/auth_providers.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -101,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class DashboardTab extends StatelessWidget {
+class DashboardTab extends ConsumerWidget {
   const DashboardTab({super.key});
 
   final Color textDark = const Color(0xFF1F2937);
@@ -109,7 +111,10 @@ class DashboardTab extends StatelessWidget {
   final Color secondaryTeal = const Color(0xFF007A75);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authSession = ref.watch(currentAuthSessionProvider);
+    final userName = authSession?.name ?? 'Guest';
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -118,7 +123,7 @@ class DashboardTab extends StatelessWidget {
           children: [
             const SizedBox(height: 16),
             Text(
-              'Welcome back,\nAlex!',
+              'Welcome back,\n$userName!',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.w900,
