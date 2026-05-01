@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_core/firebase_core.dart';
-import '../firebase_options.dart';
+import '../providers/auth_providers.dart';
 import 'auth_gate_riverpod.dart';
 
-class AppRootRiverpod extends ConsumerWidget {
+class AppRootRiverpod extends ConsumerStatefulWidget {
   const AppRootRiverpod({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return FutureBuilder(
-      future: Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return const Scaffold(
-            body: Center(child: Text('Failed to initialize Firebase')),
-          );
-        }
+  ConsumerState<AppRootRiverpod> createState() => _AppRootRiverpodState();
+}
 
-        if (snapshot.connectionState == ConnectionState.done) {
-          return const AuthGateRiverpod();
-        }
+class _AppRootRiverpodState extends ConsumerState<AppRootRiverpod> {
+  @override
+  void initState() {
+    super.initState();
 
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Access the auth state provider to trigger initialization
+      ref.read(authStateNotifierProvider);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // The AuthGate will handle routing based on authentication state
+    // It checks for existing session, restores it if valid, and redirects accordingly
+    return const AuthGateRiverpod();
   }
 }

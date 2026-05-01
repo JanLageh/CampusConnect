@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app/app_root_riverpod.dart';
+import 'app/routes.dart';
 import 'firebase_options.dart';
 import 'appwrite_config.dart';
 
@@ -31,9 +32,16 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AppRootRiverpod(),
+      title: 'Campus Connect',
+      theme: ThemeData(primarySwatch: Colors.teal, useMaterial3: true),
+      // Use AppRootRiverpod as the home widget (handles auth gate)
+      home: const AppRootRiverpod(),
+      // Configure route generator for named navigation
+      onGenerateRoute: AppRouteGenerator.generateRoute,
+      // Set initial route
+      initialRoute: '/',
     );
   }
 }

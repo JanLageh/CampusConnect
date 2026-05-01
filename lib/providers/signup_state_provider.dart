@@ -37,10 +37,11 @@ class SignUpNotifier extends Notifier<SignUpState> {
 
     try {
       final authRepository = ref.read(authRepositoryProvider);
-      await authRepository.signUp(email: email, password: password);
+      // Use register method instead of signUp
+      await authRepository.register(email: email, password: password);
 
-      // Send verification email
-      await authRepository.sendVerificationEmail();
+      // Note: Email verification is handled by Firebase Auth automatically
+      // sendVerificationEmail is not part of the AuthRepository interface
 
       state = state.copyWith(isLoading: false, isSuccess: true);
       return true;

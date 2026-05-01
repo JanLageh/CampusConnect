@@ -167,8 +167,8 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
 
   @override
   Widget build(BuildContext context) {
-    final authSession = ref.watch(currentAuthSessionProvider);
-    final userName = authSession?.name ?? 'Guest';
+    final authState = ref.watch(authStateNotifierProvider);
+    final userName = authState.user?.fullName ?? 'Guest';
 
     return SafeArea(
       child: SingleChildScrollView(
