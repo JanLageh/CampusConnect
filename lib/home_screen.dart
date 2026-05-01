@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'chats_screen.dart';
 import 'chat_detail_screen.dart';
 import 'features/profile/profile_screen_riverpod.dart';
 import 'features/announcements/presentation/screens/announcements_screen.dart';
+import 'features/chat/chat_screen.dart';
 import 'providers/auth_providers.dart';
 import 'appwrite_test_helper.dart';
 import 'auth/domain/user_display_name.dart';
@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     const DashboardTab(),
     const AnnouncementsScreen(),
-    const ChatsScreen(),
+    const ChatScreen(),
     const Center(child: Text("Library Tab")),
     const ProfileScreenRiverpod(),
   ];
