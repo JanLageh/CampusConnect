@@ -1,29 +1,31 @@
 import 'package:flutter/material.dart';
-import '../../auth/domain/auth_repository.dart';
-import '../../auth/models/auth_session.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../auth/domain/entities/user_entity.dart';
+import '../../auth/domain/exceptions/user_exception.dart';
+import '../../auth/domain/exceptions/validation_exception.dart';
+import '../../auth/domain/user_display_name.dart';
+import '../../auth/domain/validators/auth_validator.dart';
+import '../../providers/auth_providers.dart';
 
-class EditPersonalInfoScreen extends StatefulWidget {
-  final AuthRepository authRepository;
-  final AuthSession user;
+class EditPersonalInfoScreen extends ConsumerStatefulWidget {
+  final UserEntity user;
 
-  const EditPersonalInfoScreen({
-    super.key,
-    required this.authRepository,
-    required this.user,
-  });
+  const EditPersonalInfoScreen({super.key, required this.user});
 
   @override
-  State<EditPersonalInfoScreen> createState() => _EditPersonalInfoScreenState();
+  ConsumerState<EditPersonalInfoScreen> createState() =>
+      _EditPersonalInfoScreenState();
 }
 
-class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
+class _EditPersonalInfoScreenState
+    extends ConsumerState<EditPersonalInfoScreen> {
   final Color primaryDarkBlue = const Color(0xFF091C31);
   final Color secondaryTeal = const Color(0xFF007A75);
   final Color fieldBackground = const Color(0xFFF3F4F6);
   final Color errorColor = const Color(0xFFba1a1a);
 
-  late TextEditingController _displayNameController;
-  late TextEditingController _photoURLController;
+  late final TextEditingController _fullNameController;
+  late final TextEditingController _studentIdController;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
@@ -33,21 +35,17 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   @override
   void initState() {
     super.initState();
-    _displayNameController = TextEditingController(
-      text: widget.user.displayName ?? '',
-    );
-    _photoURLController = TextEditingController(
-      text: widget.user.photoURL ?? '',
-    );
+    _fullNameController = TextEditingController(text: widget.user.fullName);
+    _studentIdController = TextEditingController(text: widget.user.studentId);
 
-    _displayNameController.addListener(_onFieldChanged);
-    _photoURLController.addListener(_onFieldChanged);
+    _fullNameController.addListener(_onFieldChanged);
+    _studentIdController.addListener(_onFieldChanged);
   }
 
   void _onFieldChanged() {
     final hasChanges =
-        _displayNameController.text != (widget.user.displayName ?? '') ||
-        _photoURLController.text != (widget.user.photoURL ?? '');
+        _fullNameController.text.trim() != widget.user.fullName.trim() ||
+        _studentIdController.text.trim() != widget.user.studentId.trim();
 
     if (hasChanges != _hasChanges) {
       setState(() {
@@ -58,8 +56,8 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
 
   @override
   void dispose() {
-    _displayNameController.dispose();
-    _photoURLController.dispose();
+    _fullNameController.dispose();
+    _studentIdController.dispose();
     super.dispose();
   }
 
@@ -76,17 +74,17 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
     });
 
     try {
-      final displayName = _displayNameController.text.trim().isEmpty
-          ? null
-          : _displayNameController.text.trim();
-      final photoURL = _photoURLController.text.trim().isEmpty
-          ? null
-          : _photoURLController.text.trim();
-
-      await widget.authRepository.updateProfile(
-        displayName: displayName,
-        photoURL: photoURL,
+      final updateUserProfileUseCase = ref.read(
+        updateUserProfileUseCaseProvider,
       );
+
+      await updateUserProfileUseCase.execute(
+        userId: widget.user.userId,
+        fullName: _fullNameController.text,
+        studentId: _studentIdController.text,
+      );
+
+      await ref.read(authStateNotifierProvider.notifier).refresh();
 
       if (mounted) {
         Navigator.pop(context, true);
@@ -97,12 +95,22 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
           ),
         );
       }
+    } on ValidationException catch (e) {
+      _showError(e.message);
+    } on UserException catch (e) {
+      _showError(e.message);
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Failed to update profile: ${e.toString()}';
-        _isLoading = false;
-      });
+      _showError('Failed to update profile: ${e.toString()}');
     }
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+
+    setState(() {
+      _errorMessage = message;
+      _isLoading = false;
+    });
   }
 
   @override
@@ -111,7 +119,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          "Personal Information",
+          'Personal Information',
           style: TextStyle(
             color: primaryDarkBlue,
             fontWeight: FontWeight.bold,
@@ -134,52 +142,20 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Profile Photo Preview
                 Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      _photoURLController.text.trim().isNotEmpty
-                          ? CircleAvatar(
-                              radius: 60,
-                              backgroundColor: primaryDarkBlue.withValues(
-                                alpha: 0.1,
-                              ),
-                              backgroundImage: NetworkImage(
-                                _photoURLController.text.trim(),
-                              ),
-                              onBackgroundImageError: (_, _) {},
-                            )
-                          : CircleAvatar(
-                              radius: 60,
-                              backgroundColor: primaryDarkBlue.withValues(
-                                alpha: 0.1,
-                              ),
-                              child: Text(
-                                (_displayNameController.text.trim().isNotEmpty
-                                        ? _displayNameController.text.trim()[0]
-                                        : widget.user.name[0])
-                                    .toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 48,
-                                  fontWeight: FontWeight.bold,
-                                  color: primaryDarkBlue,
-                                ),
-                              ),
-                            ),
-                    ],
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundColor: primaryDarkBlue.withValues(alpha: 0.1),
+                    child: Text(
+                      widget.user.displayName[0].toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: primaryDarkBlue,
+                      ),
+                    ),
                   ),
                 ),
-
-                const SizedBox(height: 8),
-
-                Center(
-                  child: Text(
-                    'Profile Photo Preview',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                ),
-
                 const SizedBox(height: 32),
 
                 if (_errorMessage != null) ...[
@@ -205,7 +181,6 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
                   const SizedBox(height: 16),
                 ],
 
-                // Email (Read-only)
                 Text(
                   'Email Address',
                   style: TextStyle(
@@ -215,163 +190,52 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.email_outlined,
-                        color: Colors.grey.shade500,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          widget.user.email,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        Icons.lock_outline,
-                        color: Colors.grey.shade400,
-                        size: 18,
-                      ),
-                    ],
-                  ),
+                _buildReadOnlyField(
+                  icon: Icons.email_outlined,
+                  value: widget.user.email,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Email cannot be changed',
                   style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                 ),
-
                 const SizedBox(height: 24),
 
-                // Display Name Field
-                Text(
-                  'Display Name',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: primaryDarkBlue,
-                  ),
-                ),
+                _buildLabel('Full Name'),
                 const SizedBox(height: 8),
                 TextFormField(
-                  controller: _displayNameController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter your display name',
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade400,
-                      fontSize: 15,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.person_outline,
-                      color: Colors.grey.shade500,
-                      size: 20,
-                    ),
-                    filled: true,
-                    fillColor: fieldBackground,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: secondaryTeal, width: 2),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  controller: _fullNameController,
+                  decoration: _inputDecoration(
+                    hintText: 'Enter your full name',
+                    icon: Icons.person_outline,
                   ),
+                  keyboardType: TextInputType.name,
+                  textCapitalization: TextCapitalization.words,
                   validator: (value) {
-                    if (value != null &&
-                        value.trim().isNotEmpty &&
-                        value.trim().length < 2) {
-                      return 'Display name must be at least 2 characters';
-                    }
-                    return null;
+                    return AuthValidator.validateRequired(
+                      value ?? '',
+                      'Full name',
+                    );
                   },
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'This is how your name will appear to others',
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                ),
-
                 const SizedBox(height: 24),
 
-                // Photo URL Field
-                Text(
-                  'Profile Photo URL',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: primaryDarkBlue,
-                  ),
-                ),
+                _buildLabel('Student ID'),
                 const SizedBox(height: 8),
                 TextFormField(
-                  controller: _photoURLController,
-                  decoration: InputDecoration(
-                    hintText: 'https://example.com/photo.jpg',
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade400,
-                      fontSize: 15,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.image_outlined,
-                      color: Colors.grey.shade500,
-                      size: 20,
-                    ),
-                    filled: true,
-                    fillColor: fieldBackground,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: secondaryTeal, width: 2),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  controller: _studentIdController,
+                  decoration: _inputDecoration(
+                    hintText: 'Enter your student ID',
+                    icon: Icons.badge_outlined,
                   ),
-                  keyboardType: TextInputType.url,
+                  keyboardType: TextInputType.text,
+                  textCapitalization: TextCapitalization.characters,
                   validator: (value) {
-                    if (value != null && value.trim().isNotEmpty) {
-                      final uri = Uri.tryParse(value.trim());
-                      if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
-                        return 'Please enter a valid URL';
-                      }
-                    }
-                    return null;
+                    return AuthValidator.validateStudentId(value ?? '');
                   },
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Enter a URL to your profile photo',
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                ),
-
                 const SizedBox(height: 40),
 
-                // Save Button
                 ElevatedButton(
                   onPressed: _isLoading ? null : _handleSave,
                   style: ElevatedButton.styleFrom(
@@ -401,10 +265,8 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
                           ),
                         ),
                 ),
-
                 const SizedBox(height: 16),
 
-                // Cancel Button
                 TextButton(
                   onPressed: _isLoading ? null : () => Navigator.pop(context),
                   style: TextButton.styleFrom(
@@ -424,6 +286,66 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLabel(String label) {
+    return Text(
+      label,
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: primaryDarkBlue,
+      ),
+    );
+  }
+
+  Widget _buildReadOnlyField({required IconData icon, required String value}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.grey.shade500, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+            ),
+          ),
+          Icon(Icons.lock_outline, color: Colors.grey.shade400, size: 18),
+        ],
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration({
+    required String hintText,
+    required IconData icon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+      prefixIcon: Icon(icon, color: Colors.grey.shade500, size: 20),
+      filled: true,
+      fillColor: fieldBackground,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: secondaryTeal, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(vertical: 16),
     );
   }
 }

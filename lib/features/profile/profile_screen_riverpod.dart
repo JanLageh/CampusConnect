@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../auth/domain/entities/user_entity.dart';
+import '../../auth/domain/user_display_name.dart';
 import '../../providers/auth_providers.dart';
+import 'edit_personal_info_screen.dart';
 
 class ProfileScreenRiverpod extends ConsumerWidget {
   const ProfileScreenRiverpod({super.key});
@@ -48,7 +51,7 @@ class ProfileScreenRiverpod extends ConsumerWidget {
   Widget _buildProfileContent(
     BuildContext context,
     WidgetRef ref,
-    dynamic user,
+    UserEntity user,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
@@ -70,7 +73,7 @@ class ProfileScreenRiverpod extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  user.fullName ?? 'User',
+                  user.displayName,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -79,7 +82,7 @@ class ProfileScreenRiverpod extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  user.email ?? '',
+                  user.email,
                   style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 ),
               ],
@@ -94,9 +97,10 @@ class ProfileScreenRiverpod extends ConsumerWidget {
             title: 'Personal Information',
             subtitle: 'Update your personal details',
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Personal information editing coming soon'),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EditPersonalInfoScreen(user: user),
                 ),
               );
             },
