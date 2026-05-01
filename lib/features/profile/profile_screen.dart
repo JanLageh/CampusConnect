@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../auth/domain/auth_repository.dart';
 import '../../auth/models/auth_session.dart';
+import 'edit_personal_info_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final AuthRepository authRepository;
@@ -91,20 +92,24 @@ class ProfileScreen extends StatelessWidget {
                                     )
                                   : null,
                             ),
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: secondaryTeal,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: primaryDarkBlue,
-                                  width: 3,
+                            GestureDetector(
+                              onTap: () =>
+                                  _navigateToEditPersonalInfo(context, user),
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: secondaryTeal,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: primaryDarkBlue,
+                                    width: 3,
+                                  ),
                                 ),
-                              ),
-                              child: const Icon(
-                                Icons.edit,
-                                color: Colors.white,
-                                size: 16,
+                                child: const Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
                               ),
                             ),
                           ],
@@ -222,21 +227,30 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   _buildSettingsTile(
+                    context: context,
+                    user: user,
                     icon: Icons.person_outline,
                     title: "Personal Information",
                     subtitle: "Update your name, bio, and contact info",
+                    onTap: () => _navigateToEditPersonalInfo(context, user),
                   ),
                   _buildSettingsTile(
+                    context: context,
+                    user: user,
                     icon: Icons.notifications_outlined,
                     title: "Push Notifications",
                     subtitle: "Manage what events you get alerted for",
                   ),
                   _buildSettingsTile(
+                    context: context,
+                    user: user,
                     icon: Icons.security_outlined,
                     title: "Privacy & Security",
                     subtitle: "Biometrics and device management",
                   ),
                   _buildSettingsTile(
+                    context: context,
+                    user: user,
                     icon: Icons.help_outline,
                     title: "Help & Support",
                     subtitle: "Contact administration",
@@ -309,9 +323,12 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildSettingsTile({
+    required BuildContext context,
+    required AuthSession user,
     required IconData icon,
     required String title,
     required String subtitle,
+    VoidCallback? onTap,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -321,6 +338,7 @@ class ProfileScreen extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade100),
       ),
       child: ListTile(
+        onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: Container(
           padding: const EdgeInsets.all(10),
@@ -352,6 +370,24 @@ class ProfileScreen extends StatelessWidget {
         trailing: Icon(Icons.chevron_right, color: Colors.grey.shade400),
       ),
     );
+  }
+
+  Future<void> _navigateToEditPersonalInfo(
+    BuildContext context,
+    AuthSession user,
+  ) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            EditPersonalInfoScreen(authRepository: authRepository, user: user),
+      ),
+    );
+
+    // Show a message if the profile was updated
+    if (result == true && context.mounted) {
+      // The StreamBuilder will automatically update with the new data
+    }
   }
 
   Future<void> _handleLogout(BuildContext context) async {

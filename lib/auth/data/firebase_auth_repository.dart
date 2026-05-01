@@ -63,4 +63,35 @@ class FirebaseAuthRepository implements AuthRepository {
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
   }
+
+  @override
+  Future<void> updateDisplayName(String displayName) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) throw Exception('No user logged in');
+    await user.updateDisplayName(displayName);
+    await user.reload();
+  }
+
+  @override
+  Future<void> updatePhotoURL(String photoURL) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) throw Exception('No user logged in');
+    await user.updatePhotoURL(photoURL);
+    await user.reload();
+  }
+
+  @override
+  Future<void> updateProfile({String? displayName, String? photoURL}) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) throw Exception('No user logged in');
+
+    if (displayName != null) {
+      await user.updateDisplayName(displayName);
+    }
+    if (photoURL != null) {
+      await user.updatePhotoURL(photoURL);
+    }
+
+    await user.reload();
+  }
 }
