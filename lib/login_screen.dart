@@ -24,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final Color secondaryContainer = const Color(0xFF90efef);
   final Color textDark = const Color(0xFF191c1d);
   final Color errorColor = const Color(0xFFba1a1a);
+  final Color fieldBackground = const Color(0xFFF3F4F6);
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -175,14 +176,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           size: 20,
                         ),
                         filled: true,
-                        fillColor: surfaceHighest,
+                        fillColor: fieldBackground,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           vertical: 16,
@@ -247,14 +248,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           size: 20,
                         ),
                         filled: true,
-                        fillColor: surfaceHighest,
+                        fillColor: fieldBackground,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           vertical: 16,
@@ -278,7 +279,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(24),
                         ),
                         elevation: 0,
                       ),
@@ -305,6 +306,76 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Icon(Icons.arrow_forward, size: 20),
                               ],
                             ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Or Continue With Divider
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(color: Colors.grey.shade300, thickness: 1),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            'OR CONTINUE WITH',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade400,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(color: Colors.grey.shade300, thickness: 1),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 24),
+
+                    // Social Logins (Student Number)
+                    ElevatedButton(
+                      onPressed: () {
+                        // Handle Student Number login
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFAFAFA),
+                        foregroundColor: textDark,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: Colors.grey.shade200),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Center(
+                              child: Icon(Icons.person, size: 10, color: Colors.grey.shade600),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Login with Student Number',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
 
                     const SizedBox(height: 32),
