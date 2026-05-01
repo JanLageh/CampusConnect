@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
-import 'login_controller.dart';
-import '../data/firebase_auth_repository.dart';
-import '../data/firestore_user_profile_repository.dart';
-import '../domain/auth_repository.dart';
-import '../domain/user_profile_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/signup_state_provider.dart';
 import 'auth_validators.dart';
-import 'verify_email_screen.dart';
+import 'verify_email_screen_riverpod.dart';
 
-class SignUpScreen extends StatefulWidget {
-  final AuthRepository? authRepository;
-  final UserProfileRepository? userProfileRepository;
-
-  const SignUpScreen({
-    super.key,
-    this.authRepository,
-    this.userProfileRepository,
-  });
+class SignUpScreen extends ConsumerStatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final Color primaryDarkBlue = const Color(0xFF001e40);
   final Color backgroundSurface = const Color(0xFFf8f9fa);
   final Color surfaceHighest = const Color(0xFFffffff);
@@ -35,24 +25,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  late LoginController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = LoginController(
-      authRepository: widget.authRepository ?? FirebaseAuthRepository(),
-      userProfileRepository:
-          widget.userProfileRepository ?? FirestoreUserProfileRepository(),
-    );
-    _controller.addListener(() {
-      setState(() {});
-    });
-  }
-
   @override
   void dispose() {
-    _controller.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -61,17 +35,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<void> _handleSignUp() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final success = await _controller.signUp(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
+      final success = await ref
+          .read(signUpProvider.notifier)
+          .signUp(_emailController.text.trim(), _passwordController.text);
+
       if (success && mounted) {
         // Navigate to Verify Email route
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) =>
-                VerifyEmailScreen(authRepository: widget.authRepository),
-          ),
+          MaterialPageRoute(builder: (_) => const VerifyEmailScreenRiverpod()),
         );
       }
     }
@@ -79,6 +50,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch the sign up state
+    final signUpState = ref.watch(signUpProvider);
+
     return Scaffold(
       backgroundColor: backgroundSurface,
       appBar: AppBar(
@@ -121,7 +95,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     const SizedBox(height: 32),
 
-                    if (_controller.errorMessage != null) ...[
+                    if (signUpState.errorMessage != null) ...[
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -129,7 +103,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          _controller.errorMessage!,
+                          signUpState.errorMessage!,
                           style: TextStyle(color: errorColor, fontSize: 13),
                         ),
                       ),
@@ -270,7 +244,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                     // Sign Up Button
                     ElevatedButton(
-                      onPressed: _controller.isLoading ? null : _handleSignUp,
+                      onPressed: signUpState.isLoading ? null : _handleSignUp,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryDarkBlue,
                         foregroundColor: Colors.white,
@@ -280,7 +254,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         elevation: 0,
                       ),
-                      child: _controller.isLoading
+                      child: signUpState.isLoading
                           ? const SizedBox(
                               width: 24,
                               height: 24,

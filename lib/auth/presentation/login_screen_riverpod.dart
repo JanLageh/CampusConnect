@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/login_state_provider.dart';
 import 'auth_validators.dart';
-import 'sign_up_screen_riverpod.dart';
+import 'sign_up_screen.dart';
 import 'reset_password_screen_riverpod.dart';
 import 'login_status_banner.dart';
 
@@ -393,7 +393,7 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const SignUpScreenRiverpod(),
+                                  builder: (_) => const SignUpScreen(),
                                 ),
                               );
                             },
