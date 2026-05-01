@@ -54,10 +54,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleSignIn() async {
     if (_formKey.currentState?.validate() ?? false) {
-      await _controller.signIn(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
+      try {
+        await _controller.signIn(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _statusMessage =
+                'An error occurred during sign in. Please try again.';
+          });
+        }
+      }
     }
   }
 
@@ -314,7 +323,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: Divider(color: Colors.grey.shade300, thickness: 1),
+                          child: Divider(
+                            color: Colors.grey.shade300,
+                            thickness: 1,
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -329,11 +341,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         Expanded(
-                          child: Divider(color: Colors.grey.shade300, thickness: 1),
+                          child: Divider(
+                            color: Colors.grey.shade300,
+                            thickness: 1,
+                          ),
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 24),
 
                     // Social Logins (Student Number)
@@ -363,7 +378,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               border: Border.all(color: Colors.grey.shade300),
                             ),
                             child: Center(
-                              child: Icon(Icons.person, size: 10, color: Colors.grey.shade600),
+                              child: Icon(
+                                Icons.person,
+                                size: 10,
+                                color: Colors.grey.shade600,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),

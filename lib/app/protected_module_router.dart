@@ -89,13 +89,20 @@ class _ProtectedModuleRouterState extends State<ProtectedModuleRouter> {
             ),
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 8.0,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildNavItem(0, Icons.campaign_outlined, "Announcements"),
                     _buildNavItem(1, Icons.calendar_month_outlined, "Events"),
-                    _buildNavItem(2, Icons.chat_bubble_outline_rounded, "Chats"),
+                    _buildNavItem(
+                      2,
+                      Icons.chat_bubble_outline_rounded,
+                      "Chats",
+                    ),
                     _buildNavItem(3, Icons.folder_outlined, "Resources"),
                     _buildNavItem(4, Icons.person_outline, "Profile"),
                   ],
@@ -111,40 +118,45 @@ class _ProtectedModuleRouterState extends State<ProtectedModuleRouter> {
   Widget _buildNavItem(int index, IconData icon, String label) {
     bool isSelected = _currentIndex == index;
     Color primaryTeal = const Color(0xFF007A75);
-    
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _currentIndex = index;
-        });
-      },
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: isSelected
-            ? BoxDecoration(
-                color: const Color(0xFFE0F2F1),
-                borderRadius: BorderRadius.circular(16),
-              )
-            : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? primaryTeal : Colors.grey.shade400,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: isSelected
+              ? BoxDecoration(
+                  color: const Color(0xFFE0F2F1),
+                  borderRadius: BorderRadius.circular(16),
+                )
+              : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
                 color: isSelected ? primaryTeal : Colors.grey.shade400,
+                size: 24,
               ),
-            )
-          ],
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? primaryTeal : Colors.grey.shade400,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );
