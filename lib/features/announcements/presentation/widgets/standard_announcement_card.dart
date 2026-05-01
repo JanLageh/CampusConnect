@@ -22,17 +22,17 @@ class StandardAnnouncementCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: theme.colorScheme.outline.withOpacity(0.2),
+          color: theme.colorScheme.outline.withOpacity(0.5),
           width: 1,
         ),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -42,7 +42,7 @@ class StandardAnnouncementCard extends StatelessWidget {
                   // Author avatar
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: theme.colorScheme.primaryContainer,
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
                     backgroundImage: announcement.authorAvatarUrl != null
                         ? NetworkImage(announcement.authorAvatarUrl!)
                         : null,
@@ -50,8 +50,8 @@ class StandardAnnouncementCard extends StatelessWidget {
                         ? Text(
                             announcement.authorName[0].toUpperCase(),
                             style: TextStyle(
-                              color: theme.colorScheme.onPrimaryContainer,
-                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.w700,
                             ),
                           )
                         : null,
@@ -87,14 +87,14 @@ class StandardAnnouncementCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.secondaryContainer,
+                      color: theme.colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       announcement.category,
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSecondaryContainer,
-                        fontWeight: FontWeight.w500,
+                        color: theme.colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -105,8 +105,9 @@ class StandardAnnouncementCard extends StatelessWidget {
               Text(
                 announcement.title,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   height: 1.3,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),

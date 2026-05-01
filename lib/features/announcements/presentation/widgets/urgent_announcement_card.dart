@@ -17,28 +17,22 @@ class UrgentAnnouncementCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final dateFormat = DateFormat('MMM d, yyyy • h:mm a');
+    const urgentColor = Color(0xFFC83232); // Academic Pulse red accent
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Colors.red, width: 2),
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: urgentColor, width: 1.5),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.red.withOpacity(0.05),
-                Colors.red.withOpacity(0.02),
-              ],
-            ),
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -50,11 +44,11 @@ class UrgentAnnouncementCard extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
+                        horizontal: 12,
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.red,
+                        color: urgentColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -85,14 +79,14 @@ class UrgentAnnouncementCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.secondaryContainer,
+                        color: theme.colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         announcement.category,
                         style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.onSecondaryContainer,
-                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -105,7 +99,7 @@ class UrgentAnnouncementCard extends StatelessWidget {
                     // Author avatar
                     CircleAvatar(
                       radius: 20,
-                      backgroundColor: Colors.red.withOpacity(0.2),
+                      backgroundColor: urgentColor.withOpacity(0.1),
                       backgroundImage: announcement.authorAvatarUrl != null
                           ? NetworkImage(announcement.authorAvatarUrl!)
                           : null,
@@ -113,8 +107,8 @@ class UrgentAnnouncementCard extends StatelessWidget {
                           ? Text(
                               announcement.authorName[0].toUpperCase(),
                               style: const TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.w600,
+                                color: urgentColor,
+                                fontWeight: FontWeight.w700,
                               ),
                             )
                           : null,
@@ -152,7 +146,7 @@ class UrgentAnnouncementCard extends StatelessWidget {
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     height: 1.3,
-                    color: Colors.red.shade900,
+                    color: urgentColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -207,14 +201,14 @@ class UrgentAnnouncementCard extends StatelessWidget {
                                 vertical: 3,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(0.1),
+                                color: urgentColor.withOpacity(0.08),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 '#$tag',
                                 style: theme.textTheme.labelSmall?.copyWith(
-                                  color: Colors.red.shade700,
-                                  fontWeight: FontWeight.w500,
+                                  color: urgentColor,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             );

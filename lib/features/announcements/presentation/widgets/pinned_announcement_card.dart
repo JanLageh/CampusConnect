@@ -36,14 +36,7 @@ class PinnedAnnouncementCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                theme.colorScheme.primaryContainer,
-                theme.colorScheme.primaryContainer.withOpacity(0.7),
-              ],
-            ),
+            color: theme.colorScheme.primary, // #003366
           ),
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -59,7 +52,7 @@ class PinnedAnnouncementCard extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primary,
+                        color: theme.colorScheme.secondary, // Teal badge
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -90,13 +83,13 @@ class PinnedAnnouncementCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surface,
+                        color: Colors.white.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         announcement.category,
                         style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.onSurface,
+                          color: Colors.white,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -110,7 +103,7 @@ class PinnedAnnouncementCard extends StatelessWidget {
                     // Author avatar
                     CircleAvatar(
                       radius: 22,
-                      backgroundColor: theme.colorScheme.surface,
+                      backgroundColor: Colors.white,
                       backgroundImage: announcement.authorAvatarUrl != null
                           ? NetworkImage(announcement.authorAvatarUrl!)
                           : null,
@@ -119,7 +112,7 @@ class PinnedAnnouncementCard extends StatelessWidget {
                               announcement.authorName[0].toUpperCase(),
                               style: TextStyle(
                                 color: theme.colorScheme.primary,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                                 fontSize: 18,
                               ),
                             )
@@ -135,15 +128,14 @@ class PinnedAnnouncementCard extends StatelessWidget {
                             announcement.authorName,
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: theme.colorScheme.onPrimaryContainer,
+                              color: Colors.white,
                             ),
                           ),
                           if (announcement.authorDepartment != null)
                             Text(
                               announcement.authorDepartment!,
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onPrimaryContainer
-                                    .withOpacity(0.7),
+                                color: Colors.white70,
                               ),
                             ),
                         ],
@@ -158,7 +150,7 @@ class PinnedAnnouncementCard extends StatelessWidget {
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     height: 1.3,
-                    color: theme.colorScheme.onPrimaryContainer,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -166,9 +158,7 @@ class PinnedAnnouncementCard extends StatelessWidget {
                 Text(
                   announcement.body,
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onPrimaryContainer.withOpacity(
-                      0.9,
-                    ),
+                    color: Colors.white.withOpacity(0.9),
                     height: 1.6,
                   ),
                 ),
@@ -185,10 +175,10 @@ class PinnedAnnouncementCard extends StatelessWidget {
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           height: 200,
-                          color: theme.colorScheme.surface,
+                          color: Colors.white.withOpacity(0.1),
                           child: Icon(
                             Icons.image_not_supported,
-                            color: theme.colorScheme.onSurface.withOpacity(0.3),
+                            color: Colors.white.withOpacity(0.3),
                           ),
                         );
                       },
@@ -204,13 +194,13 @@ class PinnedAnnouncementCard extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () => _launchUrl(announcement.ctaUrl!),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: theme.colorScheme.onPrimary,
+                        backgroundColor: Colors.white,
+                        foregroundColor: theme.colorScheme.primary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        elevation: 2,
+                        elevation: 0,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -218,8 +208,8 @@ class PinnedAnnouncementCard extends StatelessWidget {
                           Text(
                             announcement.ctaLabel!,
                             style: theme.textTheme.titleSmall?.copyWith(
-                              color: theme.colorScheme.onPrimary,
-                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -245,16 +235,14 @@ class PinnedAnnouncementCard extends StatelessWidget {
                                 vertical: 3,
                               ),
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.surface.withOpacity(
-                                  0.8,
-                                ),
+                                color: Colors.white.withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 '#$tag',
                                 style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.onSurface,
-                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             );
@@ -265,9 +253,7 @@ class PinnedAnnouncementCard extends StatelessWidget {
                     Text(
                       dateFormat.format(announcement.createdAt),
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onPrimaryContainer.withOpacity(
-                          0.6,
-                        ),
+                        color: Colors.white70,
                       ),
                     ),
                   ],
