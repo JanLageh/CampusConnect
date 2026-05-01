@@ -26,13 +26,13 @@ class LoginNotifier extends Notifier<LoginState> {
   @override
   LoginState build() => const LoginState();
 
-  /// Sign in with email and password using SignInUseCase
+  /// Sign in with email and password.
   Future<void> signIn(String email, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final signInUseCase = ref.read(signInUseCaseProvider);
-      await signInUseCase.execute(email: email, password: password);
+      final authService = ref.read(authServiceProvider);
+      await authService.signIn(email: email, password: password);
       // Success - authStateNotifierProvider updates from Firebase auth changes.
       state = state.copyWith(isLoading: false);
     } on ValidationException catch (e) {

@@ -36,7 +36,7 @@ class ResetPasswordNotifier extends Notifier<ResetPasswordState> {
   @override
   ResetPasswordState build() => const ResetPasswordState();
 
-  /// Send password reset email using ResetPasswordUseCase
+  /// Send password reset email.
   Future<void> sendResetEmail(String email) async {
     state = state.copyWith(
       isLoading: true,
@@ -45,8 +45,8 @@ class ResetPasswordNotifier extends Notifier<ResetPasswordState> {
     );
 
     try {
-      final resetPasswordUseCase = ref.read(resetPasswordUseCaseProvider);
-      await resetPasswordUseCase.execute(email: email);
+      final authService = ref.read(authServiceProvider);
+      await authService.sendPasswordResetEmail(email: email);
 
       // Always show success (security best practice - don't reveal if email exists)
       state = state.copyWith(

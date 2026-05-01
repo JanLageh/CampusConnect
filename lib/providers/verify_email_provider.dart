@@ -68,8 +68,8 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
 
   /// Sign out
   Future<void> signOut() async {
-    final authRepository = ref.read(authRepositoryProvider);
-    await authRepository.signOut();
+    final authService = ref.read(authServiceProvider);
+    await authService.signOut();
   }
 }
 

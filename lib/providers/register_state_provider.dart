@@ -47,9 +47,9 @@ class RegisterNotifier extends Notifier<RegisterState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final registerUseCase = ref.read(registerUseCaseProvider);
+      final authService = ref.read(authServiceProvider);
 
-      await registerUseCase.execute(
+      await authService.register(
         fullName: fullName,
         email: email,
         studentId: studentId,

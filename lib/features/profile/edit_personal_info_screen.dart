@@ -74,11 +74,9 @@ class _EditPersonalInfoScreenState
     });
 
     try {
-      final updateUserProfileUseCase = ref.read(
-        updateUserProfileUseCaseProvider,
-      );
+      final authService = ref.read(authServiceProvider);
 
-      await updateUserProfileUseCase.execute(
+      await authService.updateProfile(
         userId: widget.user.userId,
         fullName: _fullNameController.text,
         studentId: _studentIdController.text,

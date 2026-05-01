@@ -13,13 +13,8 @@ import '../auth/domain/repositories/user_repository.dart';
 import '../auth/data/repositories/auth_repository_impl.dart';
 import '../auth/data/repositories/user_repository_impl.dart';
 
-// Use Cases
-import '../auth/domain/use_cases/sign_in_use_case.dart';
-import '../auth/domain/use_cases/register_use_case.dart';
-import '../auth/domain/use_cases/sign_out_use_case.dart';
-import '../auth/domain/use_cases/reset_password_use_case.dart';
-import '../auth/domain/use_cases/get_current_user_use_case.dart';
-import '../auth/domain/use_cases/update_user_profile_use_case.dart';
+// Application Services
+import '../auth/application/auth_service.dart';
 
 // Entities
 import '../auth/domain/entities/user_entity.dart';
@@ -80,49 +75,17 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 });
 
 // ============================================================================
-// Use Cases
+// Application Services
 // ============================================================================
 
-/// Provider for SignInUseCase
-final signInUseCaseProvider = Provider<SignInUseCase>((ref) {
-  final authRepository = ref.watch(authRepositoryProvider);
-  return SignInUseCase(authRepository: authRepository);
-});
-
-/// Provider for RegisterUseCase
-final registerUseCaseProvider = Provider<RegisterUseCase>((ref) {
+/// Provider for the auth application service.
+final authServiceProvider = Provider<AuthService>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
   final userRepository = ref.watch(userRepositoryProvider);
-  return RegisterUseCase(
+  return AuthService(
     authRepository: authRepository,
     userRepository: userRepository,
   );
-});
-
-/// Provider for SignOutUseCase
-final signOutUseCaseProvider = Provider<SignOutUseCase>((ref) {
-  final authRepository = ref.watch(authRepositoryProvider);
-  return SignOutUseCase(authRepository: authRepository);
-});
-
-/// Provider for ResetPasswordUseCase
-final resetPasswordUseCaseProvider = Provider<ResetPasswordUseCase>((ref) {
-  final authRepository = ref.watch(authRepositoryProvider);
-  return ResetPasswordUseCase(authRepository: authRepository);
-});
-
-/// Provider for GetCurrentUserUseCase
-final getCurrentUserUseCaseProvider = Provider<GetCurrentUserUseCase>((ref) {
-  final authRepository = ref.watch(authRepositoryProvider);
-  return GetCurrentUserUseCase(authRepository: authRepository);
-});
-
-/// Provider for UpdateUserProfileUseCase
-final updateUserProfileUseCaseProvider = Provider<UpdateUserProfileUseCase>((
-  ref,
-) {
-  final userRepository = ref.watch(userRepositoryProvider);
-  return UpdateUserProfileUseCase(userRepository: userRepository);
 });
 
 // ============================================================================
@@ -156,13 +119,12 @@ final isAuthLoadingProvider = Provider<bool>((ref) {
 
 /// Notifier for managing authentication state
 class AuthStateNotifier extends Notifier<AuthState> {
-  late AuthRepository _authRepository;
+  late AuthService _authService;
   StreamSubscription<UserEntity?>? _authStateSubscription;
 
   @override
   AuthState build() {
-    // Get the auth repository from the providers
-    _authRepository = ref.watch(authRepositoryProvider);
+    _authService = ref.watch(authServiceProvider);
 
     // Initialize authentication state
     _initialize();
@@ -179,12 +141,12 @@ class AuthStateNotifier extends Notifier<AuthState> {
   Future<void> _initialize() async {
     try {
       // Check for existing session on app start
-      final currentUser = await _authRepository.getCurrentUser();
+      final currentUser = await _authService.getCurrentUser();
 
       state = AuthState(user: currentUser, isLoading: false);
 
       // Listen to authentication state changes
-      _authStateSubscription = _authRepository.authStateChanges().listen(
+      _authStateSubscription = _authService.authStateChanges().listen(
         (user) {
           state = AuthState(user: user, isLoading: false);
         },
@@ -219,7 +181,7 @@ class AuthStateNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      final currentUser = await _authRepository.getCurrentUser();
+      final currentUser = await _authService.getCurrentUser();
       state = AuthState(user: currentUser, isLoading: false);
     } catch (e) {
       state = AuthState(

@@ -34,8 +34,8 @@ class ProfileScreenRiverpod extends ConsumerWidget {
           IconButton(
             icon: Icon(Icons.logout, color: primaryDarkBlue),
             onPressed: () async {
-              final signOutUseCase = ref.read(signOutUseCaseProvider);
-              await signOutUseCase.execute();
+              final authService = ref.read(authServiceProvider);
+              await authService.signOut();
             },
           ),
         ],
@@ -163,8 +163,8 @@ class ProfileScreenRiverpod extends ConsumerWidget {
           // Sign Out Button
           ElevatedButton(
             onPressed: () async {
-              final signOutUseCase = ref.read(signOutUseCaseProvider);
-              await signOutUseCase.execute();
+              final authService = ref.read(authServiceProvider);
+              await authService.signOut();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red.shade50,
