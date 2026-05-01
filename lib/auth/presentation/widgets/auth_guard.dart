@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../providers/auth_providers.dart';
 import '../providers/auth_state_provider.dart';
 
 class AuthGuard extends ConsumerStatefulWidget {
@@ -31,9 +32,9 @@ class _AuthGuardState extends ConsumerState<AuthGuard> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authStateProvider);
+    final authState = ref.watch(authStateNotifierProvider);
 
-    ref.listen<AuthState>(authStateProvider, (previous, next) {
+    ref.listen<AuthState>(authStateNotifierProvider, (previous, next) {
       if (previous?.isAuthenticated == true && next.isUnauthenticated) {
         _handleUnauthenticated(context);
       }
@@ -99,7 +100,7 @@ class AuthGuardBuilder extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateProvider);
+    final authState = ref.watch(authStateNotifierProvider);
 
     if (authState.isLoading) {
       return loadingWidget ??
