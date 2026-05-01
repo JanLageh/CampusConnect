@@ -3,10 +3,22 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/app_root_riverpod.dart';
 import 'firebase_options.dart';
+import 'appwrite_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize and ping Appwrite to verify connectivity
+  try {
+    await AppwriteConfig.ping();
+  } catch (e) {
+    // ignore: avoid_print
+    print('Warning: Could not connect to Appwrite: $e');
+  }
+
   runApp(const ProviderScope(child: MainApp()));
 }
 
