@@ -75,7 +75,7 @@ class _ProtectedModuleRouterState extends State<ProtectedModuleRouter> {
         }
 
         return Scaffold(
-          body: _screens[_currentIndex],
+          body: IndexedStack(index: _currentIndex, children: _screens),
           bottomNavigationBar: Container(
             decoration: const BoxDecoration(
               color: Colors.white,
