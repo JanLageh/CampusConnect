@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'app/app_root.dart';
-import 'auth/data/firebase_auth_repository.dart';
+import 'app/app_root_riverpod.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -16,9 +15,9 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AppRoot(authRepository: FirebaseAuthRepository()),
+      home: AppRootRiverpod(),
     );
   }
 }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/login_state_provider.dart';
 import 'auth_validators.dart';
-import 'sign_up_screen.dart';
-import 'reset_password_screen.dart';
+import 'sign_up_screen_riverpod.dart';
+import 'reset_password_screen_riverpod.dart';
 import 'login_status_banner.dart';
 
 class LoginScreenRiverpod extends ConsumerStatefulWidget {
@@ -198,7 +198,8 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                             final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const ResetPasswordScreen(),
+                                builder: (_) =>
+                                    const ResetPasswordScreenRiverpod(),
                               ),
                             );
                             if (result is String && result.isNotEmpty) {
@@ -392,7 +393,7 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const SignUpScreen(),
+                                  builder: (_) => const SignUpScreenRiverpod(),
                                 ),
                               );
                             },
