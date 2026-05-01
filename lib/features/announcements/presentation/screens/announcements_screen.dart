@@ -126,6 +126,25 @@ class AnnouncementsScreen extends ConsumerWidget {
                 'Announcements',
                 style: theme.textTheme.headlineSmall,
               ),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    // TODO: Implement search feature
+                  },
+                  icon: const Icon(Icons.search_rounded, size: 24),
+                  color: const Color(0xFF003366),
+                  tooltip: 'Search announcements',
+                ),
+                IconButton(
+                  onPressed: () {
+                    // TODO: Implement notifications feature
+                  },
+                  icon: const Icon(Icons.notifications_none_rounded, size: 24),
+                  color: const Color(0xFF003366),
+                  tooltip: 'Notifications',
+                ),
+                const SizedBox(width: 8),
+              ],
               bottom: showFilters
                   ? PreferredSize(
                       preferredSize: const Size.fromHeight(60),
