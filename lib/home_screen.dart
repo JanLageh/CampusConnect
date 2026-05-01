@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'chats_screen.dart';
 import 'chat_detail_screen.dart';
 import 'features/profile/profile_screen_riverpod.dart';
+import 'features/announcements/presentation/screens/announcements_screen.dart';
 import 'providers/auth_providers.dart';
 import 'appwrite_test_helper.dart';
 import 'auth/domain/user_display_name.dart';
@@ -19,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [
     const DashboardTab(),
-    const Center(child: Text("Events Tab")),
+    const AnnouncementsScreen(),
     const ChatsScreen(),
     const Center(child: Text("Library Tab")),
     const ProfileScreenRiverpod(),
@@ -54,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildNavItem(0, Icons.grid_view_rounded, "Home"),
-                _buildNavItem(1, Icons.calendar_month_outlined, "Events"),
+                _buildNavItem(1, Icons.campaign_outlined, "Announce"),
                 _buildNavItem(2, Icons.chat_bubble_outline_rounded, "Chats"),
                 _buildNavItem(3, Icons.inventory_2_outlined, "Library"),
                 _buildNavItem(4, Icons.person_outline, "Profile"),
