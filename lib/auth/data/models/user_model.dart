@@ -23,16 +23,27 @@ class UserModel {
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>?;
+
+    if (data == null) {
+      throw FormatException('Document data is null for user: ${doc.id}');
+    }
+
     return UserModel(
       userId: doc.id,
-      fullName: data['fullName'] as String,
-      email: data['email'] as String,
-      studentId: data['studentId'] as String,
+      fullName: data['fullName'] as String? ?? '',
+      email: data['email'] as String? ?? '',
+      studentId: data['studentId'] as String? ?? '',
       role: data['role'] as String? ?? 'student',
-      groupMemberships: List<String>.from(data['groupMemberships'] ?? []),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+      groupMemberships: data['groupMemberships'] != null
+          ? List<String>.from(data['groupMemberships'] as List)
+          : [],
+      createdAt: data['createdAt'] != null
+          ? (data['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
+      updatedAt: data['updatedAt'] != null
+          ? (data['updatedAt'] as Timestamp).toDate()
+          : DateTime.now(),
     );
   }
 
@@ -55,7 +66,29 @@ class UserModel {
       email: email,
       studentId: studentId,
       role: role,
-      groupMemberships: groupMemberships,
+      groupMemberships: List<String>.from(groupMemberships),
+    );
+  }
+
+  UserModel copyWith({
+    String? userId,
+    String? fullName,
+    String? email,
+    String? studentId,
+    String? role,
+    List<String>? groupMemberships,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return UserModel(
+      userId: userId ?? this.userId,
+      fullName: fullName ?? this.fullName,
+      email: email ?? this.email,
+      studentId: studentId ?? this.studentId,
+      role: role ?? this.role,
+      groupMemberships: groupMemberships ?? this.groupMemberships,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 

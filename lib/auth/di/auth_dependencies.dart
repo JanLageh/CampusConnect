@@ -35,9 +35,7 @@ class AuthDependencies {
 
   UserRepository? _userRepository;
   UserRepository get userRepository {
-    _userRepository ??= UserRepositoryImpl(
-      firestoreDataSource: firestoreDataSource,
-    );
+    _userRepository ??= UserRepositoryImpl(dataSource: firestoreDataSource);
     return _userRepository!;
   }
 
@@ -52,10 +50,7 @@ class AuthDependencies {
 
   SignInUseCase? _signInUseCase;
   SignInUseCase get signInUseCase {
-    _signInUseCase ??= SignInUseCase(
-      authRepository: authRepository,
-      userRepository: userRepository,
-    );
+    _signInUseCase ??= SignInUseCase(authRepository: authRepository);
     return _signInUseCase!;
   }
 
