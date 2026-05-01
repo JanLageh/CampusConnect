@@ -3,7 +3,7 @@ import '../auth/presentation/login_screen_riverpod.dart';
 import '../auth/presentation/register_screen.dart';
 import '../auth/presentation/reset_password_screen_riverpod.dart';
 import '../home_screen.dart';
-import '../features/announcements/announcements_screen.dart';
+import '../features/announcements/presentation/screens/announcements_screen.dart';
 import '../features/events/events_screen.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/resources/resources_screen.dart';
