@@ -6,7 +6,7 @@ class FirebaseAuthRepository implements AuthRepository {
   final FirebaseAuth _firebaseAuth;
 
   FirebaseAuthRepository({FirebaseAuth? firebaseAuth})
-      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+    : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
   AuthSession? _mapUser(User? user) {
     if (user == null) return null;
@@ -14,6 +14,8 @@ class FirebaseAuthRepository implements AuthRepository {
       uid: user.uid,
       email: user.email ?? '',
       isEmailVerified: user.emailVerified,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
     );
   }
 
@@ -23,7 +25,10 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<AuthSession> signIn({required String email, required String password}) async {
+  Future<AuthSession> signIn({
+    required String email,
+    required String password,
+  }) async {
     final credential = await _firebaseAuth.signInWithEmailAndPassword(
       email: email,
       password: password,
@@ -32,7 +37,10 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<AuthSession> signUp({required String email, required String password}) async {
+  Future<AuthSession> signUp({
+    required String email,
+    required String password,
+  }) async {
     final credential = await _firebaseAuth.createUserWithEmailAndPassword(
       email: email,
       password: password,
