@@ -114,8 +114,8 @@ class AuthRepositoryImpl implements AuthRepository {
   /// Registers a new user with email and password.
   ///
   /// This method only creates the Firebase Authentication account.
-  /// User metadata creation is handled separately by the RegisterUseCase
-  /// to maintain proper separation of concerns.
+  /// User metadata creation is handled by the application service to maintain
+  /// proper separation of concerns.
   ///
   /// Returns the userId of the newly created account.
   ///
