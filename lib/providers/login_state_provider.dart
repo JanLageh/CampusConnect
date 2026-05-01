@@ -4,6 +4,7 @@ import '../auth/domain/exceptions/auth_exception.dart';
 import '../auth/domain/exceptions/network_exception.dart';
 import '../auth/domain/exceptions/service_exception.dart';
 import '../auth/domain/exceptions/validation_exception.dart';
+import '../auth/presentation/utils/error_message_mapper.dart';
 
 /// Provider for SignInUseCase
 final signInUseCaseProvider = Provider((ref) {
@@ -40,17 +41,29 @@ class LoginNotifier extends Notifier<LoginState> {
       // Success - state will be updated by authStateProvider
       state = state.copyWith(isLoading: false);
     } on ValidationException catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.message);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: ErrorMessageMapper.mapValidationException(e),
+      );
     } on AuthException catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.message);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: ErrorMessageMapper.mapAuthException(e),
+      );
     } on NetworkException catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.message);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: ErrorMessageMapper.mapNetworkException(e),
+      );
     } on ServiceException catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.message);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: ErrorMessageMapper.mapServiceException(e),
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'An unexpected error occurred. Please try again.',
+        errorMessage: ErrorMessageMapper.mapException(e),
       );
     }
   }
