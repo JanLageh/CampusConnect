@@ -152,7 +152,7 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                     TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(
-                        hintText: 'student@horizon.edu',
+                        hintText: 'student@aclc.edu',
                         hintStyle: TextStyle(
                           color: Colors.grey.shade400,
                           fontSize: 15,
