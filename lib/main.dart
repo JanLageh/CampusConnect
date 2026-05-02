@@ -6,6 +6,7 @@ import 'app/app_root_riverpod.dart';
 import 'app/routes.dart';
 import 'firebase_options.dart';
 import 'appwrite_config.dart';
+import 'core/utils/app_logger.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,8 +21,7 @@ void main() async {
   try {
     await AppwriteConfig.ping();
   } catch (e) {
-    // ignore: avoid_print
-    print('Warning: Could not connect to Appwrite: $e');
+    AppLogger.warning('Could not connect to Appwrite', error: e);
   }
 
   runApp(const ProviderScope(child: MainApp()));

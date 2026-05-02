@@ -1,6 +1,7 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import '../appwrite_config.dart';
+import '../core/utils/app_logger.dart';
 
 /// Service for handling Appwrite Storage operations
 class AppwriteStorageService {
@@ -25,12 +26,12 @@ class AppwriteStorageService {
         file: file,
         permissions: permissions,
       );
-      // ignore: avoid_print
-      print('File uploaded successfully: ${result.$id}');
+      
+      AppLogger.info('File uploaded successfully: ${result.$id}');
       return result;
     } catch (e) {
-      // ignore: avoid_print
-      print('File upload failed: $e');
+      
+      AppLogger.error('File upload failed: $e');
       rethrow;
     }
   }
@@ -74,11 +75,11 @@ class AppwriteStorageService {
   }) async {
     try {
       await _storage.deleteFile(bucketId: bucketId, fileId: fileId);
-      // ignore: avoid_print
-      print('File deleted successfully: $fileId');
+      
+      AppLogger.info('File deleted successfully: $fileId');
     } catch (e) {
-      // ignore: avoid_print
-      print('File deletion failed: $e');
+      
+      AppLogger.error('File deletion failed: $e');
       rethrow;
     }
   }
@@ -96,12 +97,12 @@ class AppwriteStorageService {
         bucketId: bucketId,
         queries: queries,
       );
-      // ignore: avoid_print
-      print('Retrieved ${result.files.length} files');
+      
+      AppLogger.debug('Retrieved ${result.files.length} files');
       return result;
     } catch (e) {
-      // ignore: avoid_print
-      print('Failed to list files: $e');
+      
+      AppLogger.error('Failed to list files: $e');
       rethrow;
     }
   }
@@ -118,8 +119,8 @@ class AppwriteStorageService {
       final result = await _storage.getFile(bucketId: bucketId, fileId: fileId);
       return result;
     } catch (e) {
-      // ignore: avoid_print
-      print('Failed to get file: $e');
+      
+      AppLogger.error('Failed to get file: $e');
       rethrow;
     }
   }
@@ -148,8 +149,8 @@ class AppwriteStorageService {
       // Return the public view URL
       return getFileView(bucketId: bucketId, fileId: fileId);
     } catch (e) {
-      // ignore: avoid_print
-      print('Failed to upload chat image: $e');
+      
+      AppLogger.error('Failed to upload chat image: $e');
       rethrow;
     }
   }
@@ -179,8 +180,8 @@ class AppwriteStorageService {
       // Return the public view URL
       return getFileView(bucketId: bucketId, fileId: fileId);
     } catch (e) {
-      // ignore: avoid_print
-      print('Failed to upload announcement image: $e');
+      
+      AppLogger.error('Failed to upload announcement image: $e');
       rethrow;
     }
   }
