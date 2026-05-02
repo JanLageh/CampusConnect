@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'chat_detail_screen.dart';
 import 'features/profile/profile_screen_riverpod.dart';
 import 'features/announcements/presentation/screens/announcements_screen.dart';
 import 'features/chat/presentation/screens/chat_screen.dart';
@@ -567,113 +566,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
                             ],
                           ),
                         ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Group Card
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ChatDetailScreen(
-                      chatTitle: "Bio-Chemistry Study Group",
-                      chatColor: Color(0xFF007A75),
-                      chatIcon: Icons.people,
-                    ),
-                  ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Stack(
-                      alignment: Alignment.topRight,
-                      children: [
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.cyanAccent.shade100,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(
-                            Icons.people,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF007A75),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Text(
-                            "3",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Bio-Chemistry Study Group",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: primaryDarkBlue,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "Sarah: Does anyone have the...",
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.chat_bubble_outline,
-                        size: 20,
-                        color: Colors.black87,
                       ),
                     ),
                   ],
