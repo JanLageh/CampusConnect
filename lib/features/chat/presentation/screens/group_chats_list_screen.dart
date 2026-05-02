@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/group_chat_provider.dart';
+import '../widgets/create_group_chat_bottom_sheet.dart';
 import 'group_chat_detail_screen.dart';
 
 /// Screen displaying the list of group chats for the current user.
@@ -83,6 +84,13 @@ class GroupChatsListScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          CreateGroupChatBottomSheet.show(context);
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('New Group'),
       ),
     );
   }
