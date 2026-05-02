@@ -11,7 +11,7 @@ class AnnouncementFormState extends Equatable {
   // Step 2: Targeting
   final String? categoryId;
   final String? categoryName;
-  final List<String> targetAudience; // ['student', 'faculty', 'admin']
+  final List<String> targetAudience; // ['student', 'faculty'] - admins see all
 
   // Step 3: Extras
   final List<String> tags;

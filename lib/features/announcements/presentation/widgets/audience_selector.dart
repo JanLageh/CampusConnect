@@ -25,6 +25,35 @@ class AudienceSelector extends ConsumerWidget {
           'Select who should see this announcement',
           style: TextStyle(color: Colors.grey, fontSize: 12),
         ),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE0F2F1),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFF007A75).withOpacity(0.3)),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 16,
+                color: const Color(0xFF007A75),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Note: Administrators and moderators always see all announcements',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: const Color(0xFF007A75),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         const SizedBox(height: 12),
 
         // Student checkbox
@@ -47,17 +76,6 @@ class AudienceSelector extends ConsumerWidget {
           value: formState.targetAudience.contains('faculty'),
           onChanged: (value) {
             formNotifier.toggleAudience('faculty');
-          },
-          contentPadding: EdgeInsets.zero,
-        ),
-
-        // Admin checkbox
-        CheckboxListTile(
-          title: const Text('Administrators'),
-          subtitle: const Text('All administrators will see this announcement'),
-          value: formState.targetAudience.contains('admin'),
-          onChanged: (value) {
-            formNotifier.toggleAudience('admin');
           },
           contentPadding: EdgeInsets.zero,
         ),

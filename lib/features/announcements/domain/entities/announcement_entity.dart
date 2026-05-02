@@ -21,7 +21,8 @@ class AnnouncementEntity extends Equatable {
   final bool isPinned;
 
   // Audience targeting
-  final List<String> targetAudience; // e.g., ["student", "faculty", "admin"]
+  final List<String>
+  targetAudience; // e.g., ["student", "faculty"] - admins/moderators see all
 
   // Optional attachment (Appwrite storage)
   final String? attachmentUrl;
