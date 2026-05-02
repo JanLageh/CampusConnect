@@ -5,6 +5,8 @@ import '../providers/announcement_providers.dart';
 import '../widgets/standard_announcement_card.dart';
 import '../widgets/urgent_announcement_card.dart';
 import '../widgets/pinned_announcement_card.dart';
+import '../../../../app/routes.dart';
+import '../../../../providers/auth_providers.dart';
 
 class AnnouncementsScreen extends ConsumerWidget {
   const AnnouncementsScreen({super.key});
@@ -14,6 +16,12 @@ class AnnouncementsScreen extends ConsumerWidget {
     final announcementsAsync = ref.watch(announcementsStreamProvider);
     final selectedCategory = ref.watch(announcementCategoryProvider);
     final availableCategories = ref.watch(availableCategoriesProvider);
+
+    // Check if user is admin/moderator for FAB visibility
+    final authState = ref.watch(authStateNotifierProvider);
+    final user = authState.user;
+    final userRole = user?.role ?? '';
+    final isAdmin = userRole == 'admin' || userRole == 'moderator';
 
     // Academic Pulse Theme Definition
     final academicTheme = ThemeData(
@@ -253,6 +261,12 @@ class AnnouncementsScreen extends ConsumerWidget {
                       if (index < pinnedAnnouncements.length) {
                         return PinnedAnnouncementCard(
                           announcement: pinnedAnnouncements[index],
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                              AppRoutes.announcementDetail,
+                              arguments: pinnedAnnouncements[index],
+                            );
+                          },
                         );
                       }
 
@@ -260,6 +274,12 @@ class AnnouncementsScreen extends ConsumerWidget {
                       if (urgentIndex < urgentAnnouncements.length) {
                         return UrgentAnnouncementCard(
                           announcement: urgentAnnouncements[urgentIndex],
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                              AppRoutes.announcementDetail,
+                              arguments: urgentAnnouncements[urgentIndex],
+                            );
+                          },
                         );
                       }
 
@@ -268,6 +288,12 @@ class AnnouncementsScreen extends ConsumerWidget {
                       if (standardIndex < standardAnnouncements.length) {
                         return StandardAnnouncementCard(
                           announcement: standardAnnouncements[standardIndex],
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                              AppRoutes.announcementDetail,
+                              arguments: standardAnnouncements[standardIndex],
+                            );
+                          },
                         );
                       }
 
@@ -341,6 +367,15 @@ class AnnouncementsScreen extends ConsumerWidget {
             ),
           ],
         ),
+        floatingActionButton: isAdmin
+            ? FloatingActionButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed(AppRoutes.announcementCreate);
+                },
+                backgroundColor: const Color(0xFF003366),
+                child: const Icon(Icons.add, color: Colors.white),
+              )
+            : null,
       ),
     );
   }

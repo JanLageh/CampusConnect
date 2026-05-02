@@ -106,11 +106,16 @@ final availableCategoriesProvider = Provider<List<String>>((ref) {
 
   return announcementsAsync.when(
     data: (announcements) {
+      // If no announcements, return empty list (hide filters)
+      if (announcements.isEmpty) {
+        return [];
+      }
+
       final categories = announcements.map((a) => a.category).toSet().toList();
       categories.sort();
       return ['All', ...categories];
     },
-    loading: () => ['All'],
-    error: (_, _) => ['All'],
+    loading: () => [],
+    error: (_, _) => [],
   );
 });

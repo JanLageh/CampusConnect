@@ -4,6 +4,9 @@ import '../auth/presentation/register_screen.dart';
 import '../auth/presentation/reset_password_screen_riverpod.dart';
 import '../home_screen.dart';
 import '../features/announcements/presentation/screens/announcements_screen.dart';
+import '../features/announcements/presentation/screens/announcement_detail_screen.dart';
+import '../features/announcements/presentation/screens/announcement_form_screen.dart';
+import '../features/announcements/domain/entities/announcement_entity.dart';
 import '../features/events/events_screen.dart';
 import '../features/chat/presentation/screens/chat_screen.dart';
 import '../features/resources/resources_screen.dart';
@@ -19,6 +22,9 @@ class AppRoutes {
   // Protected routes (authentication required)
   static const String home = '/home';
   static const String announcements = '/announcements';
+  static const String announcementDetail = '/announcements/detail';
+  static const String announcementCreate = '/announcements/create';
+  static const String announcementEdit = '/announcements/edit';
   static const String events = '/events';
   static const String chats = '/chats';
   static const String resources = '/resources';
@@ -62,6 +68,29 @@ class AppRouteGenerator {
           settings: settings,
         );
 
+      case AppRoutes.announcementDetail:
+        final announcement = settings.arguments as AnnouncementEntity;
+        return MaterialPageRoute(
+          builder: (_) => AnnouncementDetailScreen(announcement: announcement),
+          settings: settings,
+        );
+
+      case AppRoutes.announcementCreate:
+        return MaterialPageRoute(
+          builder: (_) => const AnnouncementFormScreen(isEditMode: false),
+          settings: settings,
+        );
+
+      case AppRoutes.announcementEdit:
+        final announcement = settings.arguments as AnnouncementEntity;
+        return MaterialPageRoute(
+          builder: (_) => AnnouncementFormScreen(
+            announcement: announcement,
+            isEditMode: true,
+          ),
+          settings: settings,
+        );
+
       case AppRoutes.events:
         return MaterialPageRoute(
           builder: (_) => const EventsScreen(),
@@ -100,6 +129,9 @@ class AppRouteGenerator {
   static const List<String> protectedRoutes = [
     AppRoutes.home,
     AppRoutes.announcements,
+    AppRoutes.announcementDetail,
+    AppRoutes.announcementCreate,
+    AppRoutes.announcementEdit,
     AppRoutes.events,
     AppRoutes.chats,
     AppRoutes.resources,
