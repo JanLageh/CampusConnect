@@ -7,6 +7,7 @@ import 'app/routes.dart';
 import 'firebase_options.dart';
 import 'appwrite_config.dart';
 import 'core/utils/app_logger.dart';
+import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +36,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Campus Connect',
-      theme: ThemeData(primarySwatch: Colors.teal, useMaterial3: true),
+      theme: AppTheme.lightTheme,
       // Use AppRootRiverpod as the home widget (handles auth gate)
       home: const AppRootRiverpod(),
       // Configure route generator for named navigation

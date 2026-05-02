@@ -69,7 +69,11 @@ class GroupChatsListScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: Theme.of(context).colorScheme.error,
+              ),
               const SizedBox(height: 16),
               Text(
                 'Failed to load chats',
@@ -89,6 +93,7 @@ class GroupChatsListScreen extends ConsumerWidget {
         onPressed: () {
           CreateGroupChatBottomSheet.show(context);
         },
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         icon: const Icon(Icons.add),
         label: const Text('New Group'),
       ),

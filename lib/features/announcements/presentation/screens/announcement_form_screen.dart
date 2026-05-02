@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/announcement_entity.dart';
 import '../providers/announcement_form_provider.dart';
-import '../providers/draft_provider.dart';
 import '../widgets/form_steps/step_1_basics.dart';
 import '../widgets/form_steps/step_2_targeting.dart';
 import '../widgets/form_steps/step_3_extras.dart';
@@ -84,8 +83,6 @@ class _AnnouncementFormScreenState
   }
 
   Future<bool> _onWillPop() async {
-    final formState = ref.read(announcementFormProvider);
-
     // In edit mode, check for unsaved changes
     if (widget.isEditMode && _hasUnsavedChanges) {
       final shouldDiscard = await showDialog<bool>(
@@ -103,8 +100,7 @@ class _AnnouncementFormScreenState
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
               child: const Text('Discard'),
             ),
@@ -125,7 +121,10 @@ class _AnnouncementFormScreenState
     final error = formNotifier.validateCurrentStep();
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(error),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
       return;
     }
@@ -158,7 +157,10 @@ class _AnnouncementFormScreenState
     final error = formNotifier.validateCurrentStep();
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(error),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
       return;
     }
@@ -175,16 +177,20 @@ class _AnnouncementFormScreenState
                   ? 'Announcement updated successfully'
                   : 'Announcement created successfully',
             ),
-            backgroundColor: Colors.green,
+            backgroundColor:
+                Theme.of(
+                  context,
+                ).extension<ThemeData>()?.colorScheme.tertiary ??
+                Colors.green,
           ),
         );
         Navigator.of(context).pop(true);
       } else {
-        final formState = ref.read(announcementFormProvider);
+        final errorMessage = ref.read(announcementFormProvider).errorMessage;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(formState.errorMessage ?? 'Failed to submit'),
-            backgroundColor: Colors.red,
+            content: Text(errorMessage ?? 'Failed to submit'),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }

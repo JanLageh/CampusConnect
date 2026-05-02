@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/announcement_entity.dart';
-import '../../application/announcement_service.dart';
 import '../../providers/announcement_providers.dart';
 import '../../../../providers/auth_providers.dart';
+import '../../../../core/theme/app_theme.dart';
 
 /// Detail screen for viewing a single announcement with admin actions
 class AnnouncementDetailScreen extends ConsumerWidget {
@@ -21,15 +21,15 @@ class AnnouncementDetailScreen extends ConsumerWidget {
     final userRole = user?.role ?? '';
     final isAdmin = userRole == 'admin' || userRole == 'moderator';
 
-    // Academic Pulse Theme
+    // Use app theme colors
     final theme = Theme.of(context);
-    final primaryColor = const Color(0xFF003366);
-    final secondaryColor = const Color(0xFF008080);
+    final primaryColor = theme.colorScheme.primary;
+    final secondaryColor = theme.colorScheme.secondary;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppTheme.neutral,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9FA),
+        backgroundColor: AppTheme.neutral,
         elevation: 0,
         title: Text(
           'Announcement',
@@ -41,7 +41,7 @@ class AnnouncementDetailScreen extends ConsumerWidget {
         actions: [
           if (isAdmin)
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
+              icon: Icon(Icons.more_vert, color: primaryColor),
               onSelected: (value) {
                 if (value == 'edit') {
                   _navigateToEdit(context, announcement);
@@ -50,23 +50,30 @@ class AnnouncementDetailScreen extends ConsumerWidget {
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'edit',
                   child: Row(
                     children: [
-                      Icon(Icons.edit, size: 20),
-                      SizedBox(width: 12),
-                      Text('Edit'),
+                      Icon(Icons.edit, size: 20, color: primaryColor),
+                      const SizedBox(width: 12),
+                      const Text('Edit'),
                     ],
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'delete',
                   child: Row(
                     children: [
-                      Icon(Icons.delete, size: 20, color: Colors.red),
-                      SizedBox(width: 12),
-                      Text('Delete', style: TextStyle(color: Colors.red)),
+                      Icon(
+                        Icons.delete,
+                        size: 20,
+                        color: theme.colorScheme.error,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Delete',
+                        style: TextStyle(color: theme.colorScheme.error),
+                      ),
                     ],
                   ),
                 ),
@@ -390,6 +397,7 @@ class AnnouncementDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     AnnouncementEntity announcement,
   ) {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -403,9 +411,9 @@ class AnnouncementDetailScreen extends ConsumerWidget {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'This action cannot be undone. The announcement will be permanently deleted.',
-              style: TextStyle(color: Colors.red),
+              style: TextStyle(color: theme.colorScheme.error),
             ),
           ],
         ),
@@ -420,8 +428,7 @@ class AnnouncementDetailScreen extends ConsumerWidget {
               _deleteAnnouncement(context, ref, announcement);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              backgroundColor: theme.colorScheme.error,
             ),
             child: const Text('Delete'),
           ),
@@ -459,9 +466,13 @@ class AnnouncementDetailScreen extends ConsumerWidget {
         Navigator.of(context).pop(); // Close loading dialog
         Navigator.of(context).pop(); // Go back to list
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Announcement deleted successfully'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Announcement deleted successfully'),
+            backgroundColor:
+                Theme.of(
+                  context,
+                ).extension<ThemeData>()?.colorScheme.tertiary ??
+                Colors.green,
           ),
         );
       }
@@ -471,7 +482,7 @@ class AnnouncementDetailScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to delete announcement: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
