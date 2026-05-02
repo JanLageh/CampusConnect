@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/announcement_form_state.dart';
+import '../../../../core/utils/app_logger.dart';
 
 /// Service for persisting announcement drafts to SharedPreferences
 class DraftService {
@@ -15,8 +16,8 @@ class DraftService {
       await prefs.setString(_draftKey, json);
     } catch (e) {
       // Silently fail - draft saving is not critical
-      // ignore: avoid_print
-      print('Failed to save draft: $e');
+
+      AppLogger.warning('Failed to save draft: $e');
     }
   }
 
@@ -34,8 +35,8 @@ class DraftService {
       return AnnouncementFormState.fromJson(json);
     } catch (e) {
       // Silently fail and return null
-      // ignore: avoid_print
-      print('Failed to load draft: $e');
+
+      AppLogger.warning('Failed to load draft: $e');
       return null;
     }
   }
@@ -47,8 +48,8 @@ class DraftService {
       await prefs.remove(_draftKey);
     } catch (e) {
       // Silently fail
-      // ignore: avoid_print
-      print('Failed to delete draft: $e');
+
+      AppLogger.warning('Failed to delete draft: $e');
     }
   }
 

@@ -1,5 +1,5 @@
-import 'dart:developer' as developer;
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../core/utils/app_logger.dart';
 
 class FirebaseAuthDataSource {
   final FirebaseAuth _firebaseAuth;
@@ -12,35 +12,21 @@ class FirebaseAuthDataSource {
     required String password,
   }) async {
     try {
-      developer.log(
-        'Attempting sign in for email: $email',
-        name: 'FirebaseAuthDataSource',
-      );
+      AppLogger.debug('Attempting sign in for email: $email');
 
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
 
-      developer.log(
-        'Sign in successful for user: ${credential.user?.uid}',
-        name: 'FirebaseAuthDataSource',
-      );
+      AppLogger.info('Sign in successful for user: ${credential.user?.uid}');
 
       return credential;
     } on FirebaseAuthException catch (e) {
-      developer.log(
-        'Sign in failed with code: ${e.code}, message: ${e.message}',
-        name: 'FirebaseAuthDataSource',
-        error: e,
-      );
+      AppLogger.error('Sign in failed with code: ${e.code}', error: e);
       rethrow;
     } catch (e) {
-      developer.log(
-        'Unexpected error during sign in',
-        name: 'FirebaseAuthDataSource',
-        error: e,
-      );
+      AppLogger.error('Unexpected error during sign in', error: e);
       rethrow;
     }
   }
@@ -50,35 +36,23 @@ class FirebaseAuthDataSource {
     required String password,
   }) async {
     try {
-      developer.log(
-        'Attempting to create user account for email: $email',
-        name: 'FirebaseAuthDataSource',
-      );
+      AppLogger.debug('Attempting to create user account for email: $email');
 
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
 
-      developer.log(
+      AppLogger.info(
         'User account created successfully: ${credential.user?.uid}',
-        name: 'FirebaseAuthDataSource',
       );
 
       return credential;
     } on FirebaseAuthException catch (e) {
-      developer.log(
-        'Account creation failed with code: ${e.code}, message: ${e.message}',
-        name: 'FirebaseAuthDataSource',
-        error: e,
-      );
+      AppLogger.error('Account creation failed with code: ${e.code}', error: e);
       rethrow;
     } catch (e) {
-      developer.log(
-        'Unexpected error during account creation',
-        name: 'FirebaseAuthDataSource',
-        error: e,
-      );
+      AppLogger.error('Unexpected error during account creation', error: e);
       rethrow;
     }
   }
@@ -86,57 +60,35 @@ class FirebaseAuthDataSource {
   Future<void> signOut() async {
     try {
       final userId = _firebaseAuth.currentUser?.uid;
-      developer.log(
-        'Attempting sign out for user: $userId',
-        name: 'FirebaseAuthDataSource',
-      );
+      AppLogger.debug('Attempting sign out for user: $userId');
 
       await _firebaseAuth.signOut();
 
-      developer.log('Sign out successful', name: 'FirebaseAuthDataSource');
+      AppLogger.info('Sign out successful');
     } on FirebaseAuthException catch (e) {
-      developer.log(
-        'Sign out failed with code: ${e.code}, message: ${e.message}',
-        name: 'FirebaseAuthDataSource',
-        error: e,
-      );
+      AppLogger.error('Sign out failed with code: ${e.code}', error: e);
       rethrow;
     } catch (e) {
-      developer.log(
-        'Unexpected error during sign out',
-        name: 'FirebaseAuthDataSource',
-        error: e,
-      );
+      AppLogger.error('Unexpected error during sign out', error: e);
       rethrow;
     }
   }
 
   Future<void> sendPasswordResetEmail({required String email}) async {
     try {
-      developer.log(
-        'Attempting to send password reset email to: $email',
-        name: 'FirebaseAuthDataSource',
-      );
+      AppLogger.debug('Attempting to send password reset email to: $email');
 
       await _firebaseAuth.sendPasswordResetEmail(email: email.trim());
 
-      developer.log(
-        'Password reset email sent successfully',
-        name: 'FirebaseAuthDataSource',
-      );
+      AppLogger.info('Password reset email sent successfully');
     } on FirebaseAuthException catch (e) {
-      developer.log(
-        'Password reset email failed with code: ${e.code}, message: ${e.message}',
-        name: 'FirebaseAuthDataSource',
+      AppLogger.error(
+        'Password reset email failed with code: ${e.code}',
         error: e,
       );
       rethrow;
     } catch (e) {
-      developer.log(
-        'Unexpected error during password reset email',
-        name: 'FirebaseAuthDataSource',
-        error: e,
-      );
+      AppLogger.error('Unexpected error during password reset email', error: e);
       rethrow;
     }
   }
@@ -146,42 +98,25 @@ class FirebaseAuthDataSource {
       final user = _firebaseAuth.currentUser;
 
       if (user != null) {
-        developer.log(
-          'Current user retrieved: ${user.uid}',
-          name: 'FirebaseAuthDataSource',
-        );
+        AppLogger.debug('Current user retrieved: ${user.uid}');
       } else {
-        developer.log(
-          'No current user authenticated',
-          name: 'FirebaseAuthDataSource',
-        );
+        AppLogger.debug('No current user authenticated');
       }
 
       return user;
     } catch (e) {
-      developer.log(
-        'Error retrieving current user',
-        name: 'FirebaseAuthDataSource',
-        error: e,
-      );
+      AppLogger.error('Error retrieving current user', error: e);
       rethrow;
     }
   }
 
   Stream<User?> authStateChanges() {
     try {
-      developer.log(
-        'Creating auth state changes stream',
-        name: 'FirebaseAuthDataSource',
-      );
+      AppLogger.debug('Creating auth state changes stream');
 
       return _firebaseAuth.authStateChanges();
     } catch (e) {
-      developer.log(
-        'Error creating auth state changes stream',
-        name: 'FirebaseAuthDataSource',
-        error: e,
-      );
+      AppLogger.error('Error creating auth state changes stream', error: e);
       rethrow;
     }
   }

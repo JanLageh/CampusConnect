@@ -1,4 +1,4 @@
-import 'dart:developer' as developer;
+import '../../../core/utils/app_logger.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/exceptions/auth_exception.dart';
@@ -48,9 +48,8 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Attempting sign in for email: $email',
-        name: 'AuthRepositoryImpl',
       );
 
       final credential = await _authDataSource.signInWithEmailAndPassword(
@@ -64,34 +63,29 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final userId = credential.user!.uid;
 
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Authentication successful, loading metadata for userId: $userId',
-        name: 'AuthRepositoryImpl',
       );
 
       final userEntity = await _userRepository.getUserMetadata(userId: userId);
 
       if (userEntity == null) {
-        developer.log(
+        AppLogger.debug(
           'AuthRepository: User metadata not found for userId: $userId',
-          name: 'AuthRepositoryImpl',
-          level: 900, // Warning level
         );
         throw const AuthException(
           'User data not found. Please contact support.',
         );
       }
 
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Sign in complete for userId: $userId',
-        name: 'AuthRepositoryImpl',
       );
 
       return userEntity;
     } on FirebaseAuthException catch (e) {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Firebase auth error during sign in: ${e.code}',
-        name: 'AuthRepositoryImpl',
         error: e,
       );
       throw _mapFirebaseAuthException(e);
@@ -102,9 +96,8 @@ class AuthRepositoryImpl implements AuthRepository {
     } on ServiceException {
       rethrow;
     } catch (e) {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Unexpected error during sign in',
-        name: 'AuthRepositoryImpl',
         error: e,
       );
       throw AuthException('Sign in failed: ${e.toString()}');
@@ -130,9 +123,8 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Attempting registration for email: $email',
-        name: 'AuthRepositoryImpl',
       );
 
       final credential = await _authDataSource.createUserWithEmailAndPassword(
@@ -146,16 +138,14 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final userId = credential.user!.uid;
 
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Registration successful, userId: $userId',
-        name: 'AuthRepositoryImpl',
       );
 
       return userId;
     } on FirebaseAuthException catch (e) {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Firebase auth error during registration: ${e.code}',
-        name: 'AuthRepositoryImpl',
         error: e,
       );
       throw _mapFirebaseAuthException(e);
@@ -168,9 +158,8 @@ class AuthRepositoryImpl implements AuthRepository {
     } on ServiceException {
       rethrow;
     } catch (e) {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Unexpected error during registration',
-        name: 'AuthRepositoryImpl',
         error: e,
       );
       throw AuthException('Registration failed: ${e.toString()}');
@@ -187,28 +176,24 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> signOut() async {
     try {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Attempting sign out',
-        name: 'AuthRepositoryImpl',
       );
 
       await _authDataSource.signOut();
 
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Sign out successful',
-        name: 'AuthRepositoryImpl',
       );
     } on FirebaseAuthException catch (e) {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Firebase auth error during sign out: ${e.code}',
-        name: 'AuthRepositoryImpl',
         error: e,
       );
       throw _mapFirebaseAuthException(e);
     } catch (e) {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Unexpected error during sign out',
-        name: 'AuthRepositoryImpl',
         error: e,
       );
       throw AuthException('Sign out failed: ${e.toString()}');
@@ -227,30 +212,26 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> sendPasswordResetEmail({required String email}) async {
     try {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Sending password reset email to: $email',
-        name: 'AuthRepositoryImpl',
       );
 
       await _authDataSource.sendPasswordResetEmail(email: email);
 
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Password reset email sent successfully',
-        name: 'AuthRepositoryImpl',
       );
     } on FirebaseAuthException catch (e) {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Firebase auth error sending password reset: ${e.code}',
-        name: 'AuthRepositoryImpl',
         error: e,
       );
       throw _mapFirebaseAuthException(e);
     } on NetworkException {
       rethrow;
     } catch (e) {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Unexpected error sending password reset email',
-        name: 'AuthRepositoryImpl',
         error: e,
       );
       throw AuthException(
@@ -270,50 +251,43 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserEntity?> getCurrentUser() async {
     try {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Getting current user',
-        name: 'AuthRepositoryImpl',
       );
 
       final firebaseUser = _authDataSource.getCurrentUser();
 
       if (firebaseUser == null) {
-        developer.log(
+        AppLogger.debug(
           'AuthRepository: No user currently authenticated',
-          name: 'AuthRepositoryImpl',
         );
         return null;
       }
 
       final userId = firebaseUser.uid;
 
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Current user found, loading metadata for userId: $userId',
-        name: 'AuthRepositoryImpl',
       );
 
       // Load user metadata
       final userEntity = await _userRepository.getUserMetadata(userId: userId);
 
       if (userEntity == null) {
-        developer.log(
+        AppLogger.debug(
           'AuthRepository: User metadata not found for userId: $userId',
-          name: 'AuthRepositoryImpl',
-          level: 900, // Warning level
         );
         return null;
       }
 
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Current user retrieved successfully',
-        name: 'AuthRepositoryImpl',
       );
 
       return userEntity;
     } catch (e) {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Error getting current user',
-        name: 'AuthRepositoryImpl',
         error: e,
       );
       // Return null instead of throwing to allow graceful handling
@@ -324,25 +298,22 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Stream<UserEntity?> authStateChanges() {
     try {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Creating auth state changes stream',
-        name: 'AuthRepositoryImpl',
       );
 
       return _authDataSource.authStateChanges().asyncMap((firebaseUser) async {
         if (firebaseUser == null) {
-          developer.log(
+          AppLogger.debug(
             'AuthRepository: Auth state changed to unauthenticated',
-            name: 'AuthRepositoryImpl',
           );
           return null;
         }
 
         final userId = firebaseUser.uid;
 
-        developer.log(
+        AppLogger.debug(
           'AuthRepository: Auth state changed to authenticated, loading metadata for userId: $userId',
-          name: 'AuthRepositoryImpl',
         );
 
         try {
@@ -351,18 +322,15 @@ class AuthRepositoryImpl implements AuthRepository {
           );
 
           if (userEntity == null) {
-            developer.log(
+            AppLogger.debug(
               'AuthRepository: User metadata not found for userId: $userId in auth state stream',
-              name: 'AuthRepositoryImpl',
-              level: 900, // Warning level
             );
           }
 
           return userEntity;
         } catch (e) {
-          developer.log(
+          AppLogger.debug(
             'AuthRepository: Error loading metadata in auth state stream',
-            name: 'AuthRepositoryImpl',
             error: e,
           );
           // Return null to indicate authentication state is invalid
@@ -370,9 +338,8 @@ class AuthRepositoryImpl implements AuthRepository {
         }
       });
     } catch (e) {
-      developer.log(
+      AppLogger.debug(
         'AuthRepository: Error creating auth state changes stream',
-        name: 'AuthRepositoryImpl',
         error: e,
       );
       rethrow;
@@ -448,10 +415,8 @@ class AuthRepositoryImpl implements AuthRepository {
         );
 
       default:
-        developer.log(
+        AppLogger.debug(
           'Unmapped Firebase auth error code: ${e.code}',
-          name: 'AuthRepositoryImpl',
-          level: 900, // Warning level
         );
         return AuthException(
           'An unexpected error occurred. Please try again.',

@@ -1,7 +1,7 @@
-import 'dart:developer' as developer;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/announcement_model.dart';
 import '../../domain/exceptions/announcement_exceptions.dart';
+import '../../../../core/utils/app_logger.dart';
 
 class AnnouncementFirestoreDataSource {
   final FirebaseFirestore _firestore;
@@ -45,19 +45,13 @@ class AnnouncementFirestoreDataSource {
           try {
             return AnnouncementModel.fromJson(doc.data(), doc.id);
           } catch (e) {
-            developer.log(
-              'Error parsing announcement ${doc.id}: $e',
-              name: 'AnnouncementFirestoreDataSource',
-            );
+            AppLogger.error('Error parsing announcement ${doc.id}', error: e);
             rethrow;
           }
         }).toList();
       });
     } catch (e) {
-      developer.log(
-        'Error creating announcements stream: $e',
-        name: 'AnnouncementFirestoreDataSource',
-      );
+      AppLogger.error('Error creating announcements stream', error: e);
       throw AnnouncementNetworkException(
         message: 'Failed to fetch announcements',
         originalError: e,
@@ -79,10 +73,7 @@ class AnnouncementFirestoreDataSource {
       if (e is AnnouncementNotFoundException) {
         rethrow;
       }
-      developer.log(
-        'Error fetching announcement $id: $e',
-        name: 'AnnouncementFirestoreDataSource',
-      );
+      AppLogger.error('Error fetching announcement $id', error: e);
       throw AnnouncementNetworkException(
         message: 'Failed to fetch announcement',
         originalError: e,
@@ -98,10 +89,7 @@ class AnnouncementFirestoreDataSource {
           .doc(announcement.id)
           .set(announcement.toJson());
     } catch (e) {
-      developer.log(
-        'Error creating announcement: $e',
-        name: 'AnnouncementFirestoreDataSource',
-      );
+      AppLogger.error('Error creating announcement', error: e);
       throw AnnouncementNetworkException(
         message: 'Failed to create announcement',
         originalError: e,
@@ -117,10 +105,7 @@ class AnnouncementFirestoreDataSource {
           .doc(announcement.id)
           .update(announcement.toJson());
     } catch (e) {
-      developer.log(
-        'Error updating announcement: $e',
-        name: 'AnnouncementFirestoreDataSource',
-      );
+      AppLogger.error('Error updating announcement', error: e);
       throw AnnouncementNetworkException(
         message: 'Failed to update announcement',
         originalError: e,
@@ -133,10 +118,7 @@ class AnnouncementFirestoreDataSource {
     try {
       await _firestore.collection('announcements').doc(id).delete();
     } catch (e) {
-      developer.log(
-        'Error deleting announcement: $e',
-        name: 'AnnouncementFirestoreDataSource',
-      );
+      AppLogger.error('Error deleting announcement', error: e);
       throw AnnouncementNetworkException(
         message: 'Failed to delete announcement',
         originalError: e,

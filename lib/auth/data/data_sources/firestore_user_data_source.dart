@@ -1,6 +1,6 @@
-import 'dart:developer' as developer;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/exceptions/user_exception.dart';
+import '../../../core/utils/app_logger.dart';
 
 class FirestoreUserDataSource {
   final FirebaseFirestore _firestore;
@@ -17,10 +17,7 @@ class FirestoreUserDataSource {
     required String studentId,
   }) async {
     try {
-      developer.log(
-        'Creating user document for userId: $userId',
-        name: 'FirestoreUserDataSource',
-      );
+      AppLogger.debug('Creating user document for userId: $userId');
 
       final now = FieldValue.serverTimestamp();
       final userData = {
@@ -35,24 +32,13 @@ class FirestoreUserDataSource {
 
       await _firestore.collection(_usersCollection).doc(userId).set(userData);
 
-      developer.log(
-        'Successfully created user document for userId: $userId',
-        name: 'FirestoreUserDataSource',
-      );
+      AppLogger.info('Successfully created user document for userId: $userId');
     } on FirebaseException catch (e) {
-      developer.log(
-        'Firestore error creating user: ${e.code} - ${e.message}',
-        name: 'FirestoreUserDataSource',
-        error: e,
-      );
+      AppLogger.error('Firestore error creating user: ${e.code}', error: e);
 
       throw _mapFirestoreException(e, 'create user');
     } catch (e) {
-      developer.log(
-        'Unexpected error creating user: $e',
-        name: 'FirestoreUserDataSource',
-        error: e,
-      );
+      AppLogger.error('Unexpected error creating user', error: e);
 
       throw UserException('Failed to create user: ${e.toString()}');
     }
@@ -60,10 +46,7 @@ class FirestoreUserDataSource {
 
   Future<DocumentSnapshot?> getUser({required String userId}) async {
     try {
-      developer.log(
-        'Fetching user document for userId: $userId',
-        name: 'FirestoreUserDataSource',
-      );
+      AppLogger.debug('Fetching user document for userId: $userId');
 
       final docSnapshot = await _firestore
           .collection(_usersCollection)
@@ -71,33 +54,19 @@ class FirestoreUserDataSource {
           .get();
 
       if (!docSnapshot.exists) {
-        developer.log(
-          'User document not found for userId: $userId',
-          name: 'FirestoreUserDataSource',
-        );
+        AppLogger.debug('User document not found for userId: $userId');
         return null;
       }
 
-      developer.log(
-        'Successfully fetched user document for userId: $userId',
-        name: 'FirestoreUserDataSource',
-      );
+      AppLogger.debug('Successfully fetched user document for userId: $userId');
 
       return docSnapshot;
     } on FirebaseException catch (e) {
-      developer.log(
-        'Firestore error fetching user: ${e.code} - ${e.message}',
-        name: 'FirestoreUserDataSource',
-        error: e,
-      );
+      AppLogger.error('Firestore error fetching user: ${e.code}', error: e);
 
       throw _mapFirestoreException(e, 'fetch user');
     } catch (e) {
-      developer.log(
-        'Unexpected error fetching user: $e',
-        name: 'FirestoreUserDataSource',
-        error: e,
-      );
+      AppLogger.error('Unexpected error fetching user', error: e);
 
       throw UserException('Failed to fetch user: ${e.toString()}');
     }
@@ -108,9 +77,8 @@ class FirestoreUserDataSource {
     required Map<String, dynamic> updates,
   }) async {
     try {
-      developer.log(
+      AppLogger.debug(
         'Updating user document for userId: $userId with fields: ${updates.keys.join(", ")}',
-        name: 'FirestoreUserDataSource',
       );
 
       final updatesWithTimestamp = {
@@ -123,24 +91,13 @@ class FirestoreUserDataSource {
           .doc(userId)
           .update(updatesWithTimestamp);
 
-      developer.log(
-        'Successfully updated user document for userId: $userId',
-        name: 'FirestoreUserDataSource',
-      );
+      AppLogger.info('Successfully updated user document for userId: $userId');
     } on FirebaseException catch (e) {
-      developer.log(
-        'Firestore error updating user: ${e.code} - ${e.message}',
-        name: 'FirestoreUserDataSource',
-        error: e,
-      );
+      AppLogger.error('Firestore error updating user: ${e.code}', error: e);
 
       throw _mapFirestoreException(e, 'update user');
     } catch (e) {
-      developer.log(
-        'Unexpected error updating user: $e',
-        name: 'FirestoreUserDataSource',
-        error: e,
-      );
+      AppLogger.error('Unexpected error updating user', error: e);
 
       throw UserException('Failed to update user: ${e.toString()}');
     }

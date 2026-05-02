@@ -1,5 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/utils/app_logger.dart';
 
 /// Appwrite project configuration
 class AppwriteConfig {
@@ -39,27 +40,22 @@ class AppwriteConfig {
 
       try {
         await account.get();
-        // ignore: avoid_print
-        print('Appwrite connection successful - User authenticated');
+        AppLogger.info('Appwrite connection successful - User authenticated');
       } catch (error) {
         // If we get a 401, connection still works but user not logged in
         if (error.toString().contains('401') ||
             error.toString().contains('unauthorized') ||
             error.toString().contains('Missing scope')) {
-          // ignore: avoid_print
-          print('Appwrite connection successful (not authenticated)');
+          AppLogger.info('Appwrite connection successful (not authenticated)');
         } else {
           rethrow;
         }
       }
 
-      // ignore: avoid_print
-      print('Project: $projectName ($projectId)');
-      // ignore: avoid_print
-      print('Endpoint: $endpoint');
+      AppLogger.info('Project: $projectName ($projectId)');
+      AppLogger.info('Endpoint: $endpoint');
     } catch (e) {
-      // ignore: avoid_print
-      print('Appwrite connection failed: $e');
+      AppLogger.error('Appwrite connection failed', error: e);
       rethrow;
     }
   }
@@ -73,22 +69,21 @@ class AppwriteConfig {
     try {
       // If a session already exists this will succeed — nothing to do.
       await account.get();
-      // ignore: avoid_print
-      print('Appwrite session already active');
+      AppLogger.info('Appwrite session already active');
     } on AppwriteException catch (e) {
       // 401 means no active session — create an anonymous one.
       if (e.code == 401) {
         try {
           await account.createAnonymousSession();
-          // ignore: avoid_print
-          print('Appwrite anonymous session created');
+          AppLogger.info('Appwrite anonymous session created');
         } catch (createError) {
-          // ignore: avoid_print
-          print('Appwrite session creation failed: $createError');
+          AppLogger.error(
+            'Appwrite session creation failed',
+            error: createError,
+          );
         }
       } else {
-        // ignore: avoid_print
-        print('Appwrite session check failed: $e');
+        AppLogger.error('Appwrite session check failed', error: e);
       }
     }
   }
@@ -99,11 +94,12 @@ class AppwriteConfig {
   static Future<void> deleteSession() async {
     try {
       await account.deleteSession(sessionId: 'current');
-      // ignore: avoid_print
-      print('Appwrite session deleted');
+      AppLogger.info('Appwrite session deleted');
     } catch (e) {
-      // ignore: avoid_print
-      print('Appwrite session deletion failed (may already be gone): $e');
+      AppLogger.warning(
+        'Appwrite session deletion failed (may already be gone)',
+        error: e,
+      );
     }
   }
 }

@@ -1,4 +1,4 @@
-import 'dart:developer' as developer;
+import '../../../core/utils/app_logger.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/exceptions/user_exception.dart';
@@ -51,9 +51,8 @@ class UserRepositoryImpl implements UserRepository {
     required String studentId,
   }) async {
     try {
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Creating metadata for userId: $userId',
-        name: 'UserRepositoryImpl',
       );
 
       await _dataSource.createUser(
@@ -63,23 +62,20 @@ class UserRepositoryImpl implements UserRepository {
         studentId: studentId,
       );
 
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Metadata created successfully for userId: $userId',
-        name: 'UserRepositoryImpl',
       );
     } on UserException {
       rethrow;
     } on FirebaseException catch (e) {
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Firestore error creating metadata: ${e.code}',
-        name: 'UserRepositoryImpl',
         error: e,
       );
       throw _mapFirestoreException(e, 'create user metadata');
     } catch (e) {
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Unexpected error creating metadata',
-        name: 'UserRepositoryImpl',
         error: e,
       );
       throw UserException('Failed to create user metadata: ${e.toString()}');
@@ -105,17 +101,15 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<UserEntity?> getUserMetadata({required String userId}) async {
     try {
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Fetching metadata for userId: $userId',
-        name: 'UserRepositoryImpl',
       );
 
       final docSnapshot = await _dataSource.getUser(userId: userId);
 
       if (docSnapshot == null) {
-        developer.log(
+        AppLogger.debug(
           'UserRepository: No metadata found for userId: $userId',
-          name: 'UserRepositoryImpl',
         );
         return null;
       }
@@ -123,25 +117,22 @@ class UserRepositoryImpl implements UserRepository {
       final userModel = UserModel.fromFirestore(docSnapshot);
       final userEntity = userModel.toEntity();
 
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Metadata retrieved successfully for userId: $userId',
-        name: 'UserRepositoryImpl',
       );
 
       return userEntity;
     } on UserException {
       rethrow;
     } on FirebaseException catch (e) {
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Firestore error fetching metadata: ${e.code}',
-        name: 'UserRepositoryImpl',
         error: e,
       );
       throw _mapFirestoreException(e, 'fetch user metadata');
     } on FormatException catch (e) {
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Document format error for userId: $userId',
-        name: 'UserRepositoryImpl',
         error: e,
       );
       throw UserException(
@@ -149,9 +140,8 @@ class UserRepositoryImpl implements UserRepository {
         code: 'invalid-data',
       );
     } catch (e) {
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Unexpected error fetching metadata',
-        name: 'UserRepositoryImpl',
         error: e,
       );
       throw UserException('Failed to fetch user metadata: ${e.toString()}');
@@ -191,32 +181,28 @@ class UserRepositoryImpl implements UserRepository {
     required Map<String, dynamic> updates,
   }) async {
     try {
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Updating metadata for userId: $userId with fields: ${updates.keys.join(", ")}',
-        name: 'UserRepositoryImpl',
       );
 
       _validateUpdates(updates);
 
       await _dataSource.updateUser(userId: userId, updates: updates);
 
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Metadata updated successfully for userId: $userId',
-        name: 'UserRepositoryImpl',
       );
     } on UserException {
       rethrow;
     } on FirebaseException catch (e) {
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Firestore error updating metadata: ${e.code}',
-        name: 'UserRepositoryImpl',
         error: e,
       );
       throw _mapFirestoreException(e, 'update user metadata');
     } catch (e) {
-      developer.log(
+      AppLogger.debug(
         'UserRepository: Unexpected error updating metadata',
-        name: 'UserRepositoryImpl',
         error: e,
       );
       throw UserException('Failed to update user metadata: ${e.toString()}');
@@ -314,10 +300,8 @@ class UserRepositoryImpl implements UserRepository {
         return UserException('This operation is not supported.', code: e.code);
 
       default:
-        developer.log(
+        AppLogger.debug(
           'Unmapped Firestore error code: ${e.code}',
-          name: 'UserRepositoryImpl',
-          level: 900, // Warning level
         );
         return UserException(
           'Failed to $operation: ${e.message ?? "Unknown error"}',
