@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/login_state_provider.dart';
 import '../domain/validators/auth_validator.dart';
+import '../../core/widgets/widgets.dart';
 import 'register_screen.dart';
 import 'reset_password_screen_riverpod.dart';
 import 'login_status_banner.dart';
@@ -29,6 +30,7 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String? _statusMessage;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -47,7 +49,6 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch the login state
     final loginState = ref.watch(loginProvider);
 
     return Scaffold(
@@ -67,7 +68,6 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo
                     Center(
                       child: Container(
                         width: 50,
@@ -84,7 +84,6 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // School Title
                     Text(
                       'ACLC College of Mandaue',
                       textAlign: TextAlign.center,
@@ -97,7 +96,6 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                     ),
                     const SizedBox(height: 32),
 
-                    // Welcome Text
                     Text(
                       'Welcome Back',
                       textAlign: TextAlign.center,
@@ -125,57 +123,20 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                       ),
 
                     if (loginState.errorMessage != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: errorColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          loginState.errorMessage!,
-                          style: TextStyle(color: errorColor, fontSize: 13),
-                        ),
+                      ErrorContainer(
+                        message: loginState.errorMessage!,
+                        type: MessageType.error,
                       ),
                       const SizedBox(height: 16),
                     ],
 
                     // Email Field
-                    Text(
-                      'Email Address',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: textDark,
-                      ),
-                    ),
+                    const FormLabel(text: 'Email Address'),
                     const SizedBox(height: 8),
-                    TextFormField(
+                    FormInputField(
                       controller: _emailController,
-                      decoration: InputDecoration(
-                        hintText: 'student@aclc.edu',
-                        hintStyle: TextStyle(
-                          color: Colors.grey.shade400,
-                          fontSize: 15,
-                        ),
-                        prefixIcon: Icon(
-                          Icons.email_outlined,
-                          color: Colors.grey.shade500,
-                          size: 20,
-                        ),
-                        filled: true,
-                        fillColor: fieldBackground,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                        ),
-                      ),
+                      hintText: 'student@aclc.edu',
+                      prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) =>
                           AuthValidator.validateEmail(value ?? ''),
@@ -186,16 +147,11 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Password',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: textDark,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () async {
+                        const FormLabel(text: 'Password'),
+                        SecondaryButton(
+                          text: 'Forgot password?',
+                          fullWidth: false,
+                          onPressed: () async {
                             final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -208,45 +164,28 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                               ref.read(loginProvider.notifier).clearError();
                             }
                           },
-                          child: Text(
-                            'Forgot password?',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF006a6a),
-                            ),
-                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    TextFormField(
+                    FormInputField(
                       controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        hintText: '••••••••',
-                        hintStyle: TextStyle(
-                          color: Colors.grey.shade400,
-                          letterSpacing: 2.0,
-                        ),
-                        prefixIcon: Icon(
-                          Icons.lock_outline,
+                      hintText: '••••••••',
+                      prefixIcon: Icons.lock_outline,
+                      obscureText: _obscurePassword,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                           color: Colors.grey.shade500,
                           size: 20,
                         ),
-                        filled: true,
-                        fillColor: fieldBackground,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
                       ),
                       validator: (value) =>
                           AuthValidator.validatePassword(value ?? ''),
@@ -255,40 +194,11 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
                     const SizedBox(height: 32),
 
                     // Sign In Button
-                    ElevatedButton(
-                      onPressed: loginState.isLoading ? null : _handleSignIn,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryDarkBlue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: loginState.isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Text(
-                                  'Sign In',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                                Icon(Icons.arrow_forward, size: 20),
-                              ],
-                            ),
+                    PrimaryButton(
+                      text: 'Sign In',
+                      onPressed: _handleSignIn,
+                      isLoading: loginState.isLoading,
+                      icon: Icons.arrow_forward,
                     ),
 
                     const SizedBox(height: 32),
@@ -373,7 +283,6 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
 
                     const SizedBox(height: 32),
 
-                    // Sign Up Text
                     Center(
                       child: Wrap(
                         alignment: WrapAlignment.center,
@@ -409,7 +318,6 @@ class _LoginScreenRiverpodState extends ConsumerState<LoginScreenRiverpod> {
 
                     const SizedBox(height: 32),
 
-                    // Footer
                     Text(
                       '© 2024 ACLC COLLEGE OF MANDAUE • CSO VERIFIED',
                       textAlign: TextAlign.center,

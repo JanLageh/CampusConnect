@@ -18,15 +18,25 @@ class FormInputField extends StatelessWidget {
   });
 
   final TextEditingController controller;
+
   final String? hintText;
+
   final String? labelText;
+
   final IconData? prefixIcon;
+
   final Widget? suffixIcon;
+
   final String? Function(String?)? validator;
+
   final TextInputType keyboardType;
+
   final TextCapitalization textCapitalization;
+
   final bool obscureText;
+
   final bool enabled;
+
   final int maxLines;
 
   @override

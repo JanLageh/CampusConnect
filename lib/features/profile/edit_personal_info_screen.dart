@@ -6,6 +6,7 @@ import '../../auth/domain/exceptions/validation_exception.dart';
 import '../../auth/domain/user_display_name.dart';
 import '../../auth/domain/validators/auth_validator.dart';
 import '../../providers/auth_providers.dart';
+import '../../core/widgets/widgets.dart';
 
 class EditPersonalInfoScreen extends ConsumerStatefulWidget {
   final UserEntity user;
@@ -20,9 +21,6 @@ class EditPersonalInfoScreen extends ConsumerStatefulWidget {
 class _EditPersonalInfoScreenState
     extends ConsumerState<EditPersonalInfoScreen> {
   final Color primaryDarkBlue = const Color(0xFF091C31);
-  final Color secondaryTeal = const Color(0xFF007A75);
-  final Color fieldBackground = const Color(0xFFF3F4F6);
-  final Color errorColor = const Color(0xFFba1a1a);
 
   late final TextEditingController _fullNameController;
   late final TextEditingController _studentIdController;
@@ -154,39 +152,17 @@ class _EditPersonalInfoScreenState
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
 
                 if (_errorMessage != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: errorColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.error_outline, color: errorColor, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _errorMessage!,
-                            style: TextStyle(color: errorColor, fontSize: 13),
-                          ),
-                        ),
-                      ],
-                    ),
+                  ErrorContainer(
+                    message: _errorMessage!,
+                    type: MessageType.error,
                   ),
                   const SizedBox(height: 16),
                 ],
 
-                Text(
-                  'Email Address',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: primaryDarkBlue,
-                  ),
-                ),
+                FormLabel(text: 'Email Address'),
                 const SizedBox(height: 8),
                 _buildReadOnlyField(
                   icon: Icons.email_outlined,
@@ -199,14 +175,12 @@ class _EditPersonalInfoScreenState
                 ),
                 const SizedBox(height: 24),
 
-                _buildLabel('Full Name'),
+                FormLabel(text: 'Full Name'),
                 const SizedBox(height: 8),
-                TextFormField(
+                FormInputField(
                   controller: _fullNameController,
-                  decoration: _inputDecoration(
-                    hintText: 'Enter your full name',
-                    icon: Icons.person_outline,
-                  ),
+                  hintText: 'Enter your full name',
+                  prefixIcon: Icons.person_outline,
                   keyboardType: TextInputType.name,
                   textCapitalization: TextCapitalization.words,
                   validator: (value) {
@@ -218,14 +192,12 @@ class _EditPersonalInfoScreenState
                 ),
                 const SizedBox(height: 24),
 
-                _buildLabel('Student ID'),
+                FormLabel(text: 'Student ID'),
                 const SizedBox(height: 8),
-                TextFormField(
+                FormInputField(
                   controller: _studentIdController,
-                  decoration: _inputDecoration(
-                    hintText: 'Enter your student ID',
-                    icon: Icons.badge_outlined,
-                  ),
+                  hintText: 'Enter your student ID',
+                  prefixIcon: Icons.badge_outlined,
                   keyboardType: TextInputType.text,
                   textCapitalization: TextCapitalization.characters,
                   validator: (value) {
@@ -234,66 +206,21 @@ class _EditPersonalInfoScreenState
                 ),
                 const SizedBox(height: 40),
 
-                ElevatedButton(
+                PrimaryButton(
+                  text: _hasChanges ? 'Save Changes' : 'No Changes',
                   onPressed: _isLoading ? null : _handleSave,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryDarkBlue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text(
-                          _hasChanges ? 'Save Changes' : 'No Changes',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                  isLoading: _isLoading,
                 ),
                 const SizedBox(height: 16),
 
-                TextButton(
+                SecondaryButton(
+                  text: 'Cancel',
                   onPressed: _isLoading ? null : () => Navigator.pop(context),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: Text(
-                    'Cancel',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                 ),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String label) {
-    return Text(
-      label,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: primaryDarkBlue,
       ),
     );
   }
@@ -318,32 +245,6 @@ class _EditPersonalInfoScreenState
           Icon(Icons.lock_outline, color: Colors.grey.shade400, size: 18),
         ],
       ),
-    );
-  }
-
-  InputDecoration _inputDecoration({
-    required String hintText,
-    required IconData icon,
-  }) {
-    return InputDecoration(
-      hintText: hintText,
-      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
-      prefixIcon: Icon(icon, color: Colors.grey.shade500, size: 20),
-      filled: true,
-      fillColor: fieldBackground,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: secondaryTeal, width: 2),
-      ),
-      contentPadding: const EdgeInsets.symmetric(vertical: 16),
     );
   }
 }
