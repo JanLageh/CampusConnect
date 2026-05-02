@@ -3,15 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../providers/auth_providers.dart';
 import '../../domain/entities/message.dart';
-import '../../providers/group_chat_provider.dart';
 import '../../providers/message_provider.dart';
 
 /// Widget displaying a single message bubble.
 class MessageBubble extends ConsumerWidget {
   final Message message;
   final String chatId;
+  final String chatCreatorId;
 
-  const MessageBubble({super.key, required this.message, required this.chatId});
+  const MessageBubble({
+    super.key,
+    required this.message,
+    required this.chatId,
+    required this.chatCreatorId,
+  });
 
   bool _canModerate(
     String? currentUserId,
@@ -84,8 +89,12 @@ class MessageBubble extends ConsumerWidget {
     final currentUser = authState.user;
     final isOwnMessage = currentUser?.userId == message.senderId;
 
-    // Get chat data to check moderation permissions
-    final chatAsync = ref.watch(groupChatByIdProvider(chatId));
+    // Check moderation permissions using passed chatCreatorId
+    final canModerate = _canModerate(
+      currentUser?.userId,
+      currentUser?.role,
+      chatCreatorId,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
@@ -125,17 +134,10 @@ class MessageBubble extends ConsumerWidget {
                   ),
                 GestureDetector(
                   onLongPress: () {
-                    // Check if user can moderate
-                    chatAsync.whenData((chat) {
-                      if (!message.isDeleted &&
-                          _canModerate(
-                            currentUser?.userId,
-                            currentUser?.role,
-                            chat.creatorId,
-                          )) {
-                        _showDeleteConfirmation(context, ref);
-                      }
-                    });
+                    // Show delete confirmation if user can moderate
+                    if (!message.isDeleted && canModerate) {
+                      _showDeleteConfirmation(context, ref);
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(

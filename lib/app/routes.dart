@@ -5,7 +5,7 @@ import '../auth/presentation/reset_password_screen_riverpod.dart';
 import '../home_screen.dart';
 import '../features/announcements/presentation/screens/announcements_screen.dart';
 import '../features/events/events_screen.dart';
-import '../features/chat/chat_screen.dart';
+import '../features/chat/presentation/screens/chat_screen.dart';
 import '../features/resources/resources_screen.dart';
 import '../features/profile/profile_screen_riverpod.dart';
 

@@ -22,6 +22,9 @@ class _MessageInputWidgetState extends ConsumerState<MessageInputWidget> {
   final ImagePicker _picker = ImagePicker();
   final AppwriteStorageService _storageService = AppwriteStorageService();
 
+  // 45MB file size limit
+  static const int maxFileSizeBytes = 45 * 1024 * 1024;
+
   XFile? _selectedImage;
   bool _isSending = false;
 
@@ -41,6 +44,23 @@ class _MessageInputWidgetState extends ConsumerState<MessageInputWidget> {
       );
 
       if (image != null) {
+        // Validate file size
+        final fileSize = await image.length();
+        if (fileSize > maxFileSizeBytes) {
+          if (mounted) {
+            final fileSizeMB = (fileSize / (1024 * 1024)).toStringAsFixed(1);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Image is too large ($fileSizeMB MB). Maximum size is 45 MB.',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+
         setState(() {
           _selectedImage = image;
         });
@@ -88,8 +108,25 @@ class _MessageInputWidgetState extends ConsumerState<MessageInputWidget> {
       // Upload image if selected
       if (_selectedImage != null) {
         final file = File(_selectedImage!.path);
-        final fileId = ID.unique();
 
+        // Double-check file size before upload
+        final fileSize = await file.length();
+        if (fileSize > maxFileSizeBytes) {
+          if (mounted) {
+            final fileSizeMB = (fileSize / (1024 * 1024)).toStringAsFixed(1);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Image is too large ($fileSizeMB MB). Maximum size is 45 MB.',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+
+        final fileId = ID.unique();
         attachmentUrl = await _storageService.uploadChatImage(
           file: InputFile.fromPath(path: file.path),
           fileId: fileId,
@@ -132,7 +169,7 @@ class _MessageInputWidgetState extends ConsumerState<MessageInputWidget> {
         color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, -2),
           ),

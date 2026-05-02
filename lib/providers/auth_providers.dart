@@ -22,6 +22,9 @@ import '../auth/domain/entities/user_entity.dart';
 // Auth State
 import '../auth/presentation/providers/auth_state_provider.dart';
 
+// Appwrite session bridge
+import '../appwrite_config.dart';
+
 // ============================================================================
 // Firebase Instances
 // ============================================================================
@@ -143,11 +146,23 @@ class AuthStateNotifier extends Notifier<AuthState> {
       // Check for existing session on app start
       final currentUser = await _authService.getCurrentUser();
 
+      // Bridge: ensure Appwrite session exists if Firebase user is logged in
+      if (currentUser != null) {
+        await AppwriteConfig.ensureSession();
+      }
+
       state = AuthState(user: currentUser, isLoading: false);
 
       // Listen to authentication state changes
       _authStateSubscription = _authService.authStateChanges().listen(
-        (user) {
+        (user) async {
+          if (user != null) {
+            // User signed in — ensure Appwrite session is active
+            await AppwriteConfig.ensureSession();
+          } else {
+            // User signed out — clean up Appwrite session
+            await AppwriteConfig.deleteSession();
+          }
           state = AuthState(user: user, isLoading: false);
         },
         onError: (error) {

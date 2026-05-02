@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/group_chat_provider.dart';
 import '../../providers/message_provider.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/message_input_widget.dart';
@@ -18,6 +19,7 @@ class GroupChatDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final messagesAsync = ref.watch(messagesStreamProvider(chatId));
+    final chatAsync = ref.watch(groupChatByIdProvider(chatId));
 
     return Scaffold(
       appBar: AppBar(title: Text(chatName)),
@@ -37,14 +39,27 @@ class GroupChatDetailScreen extends ConsumerWidget {
                   );
                 }
 
-                return ListView.builder(
-                  reverse: true, // Show newest messages at the bottom
-                  padding: const EdgeInsets.all(8.0),
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final message = messages[index];
-                    return MessageBubble(message: message, chatId: chatId);
+                // Get chat creator ID for moderation permissions
+                return chatAsync.when(
+                  data: (chat) {
+                    return ListView.builder(
+                      reverse: true, // Show newest messages at the bottom
+                      padding: const EdgeInsets.all(8.0),
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final message = messages[index];
+                        return MessageBubble(
+                          message: message,
+                          chatId: chatId,
+                          chatCreatorId: chat.creatorId,
+                        );
+                      },
+                    );
                   },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (error, stack) =>
+                      Center(child: Text('Failed to load chat: $error')),
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
