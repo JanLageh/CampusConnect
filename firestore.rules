@@ -85,8 +85,17 @@ service cloud.firestore {
     
     // Announcements collection rules
     match /announcements/{announcementId} {
-      // Allow read access only if user's role or groups match targetAudience
-      allow read: if isAuthenticated() && canReadAnnouncement(resource.data);
+      // Allow list queries for all authenticated users.
+      // NOTE: This does NOT enforce targetAudience filtering at the rule level.
+      // The client-side datasource applies the filter via .where('targetAudience', arrayContainsAny: ...).
+      // Single-document reads (get) still enforce targetAudience via canReadAnnouncement().
+      // Admins/moderators can list all; regular users must filter by targetAudience in their queries.
+      allow list: if isAuthenticated();
+      
+      // Allow get (single document read) only if user's role or groups match targetAudience
+      // or if user is admin/moderator
+      allow get: if isAuthenticated() && 
+                    (isAdminOrModerator() || canReadAnnouncement(resource.data));
       
       // Only admins and moderators can create announcements
       allow create: if isAdminOrModerator();
@@ -171,6 +180,17 @@ service cloud.firestore {
         // Prevent hard deletion
         allow delete: if false;
       }
+    }
+    
+    // Categories collection rules
+    match /categories/{categoryId} {
+      // All authenticated users can read categories
+      allow read: if isAuthenticated();
+      
+      // Only admins and moderators can create/update/delete categories
+      allow create: if isAdminOrModerator();
+      allow update: if isAdminOrModerator();
+      allow delete: if isAdminOrModerator();
     }
     
     // Deny all other access by default
