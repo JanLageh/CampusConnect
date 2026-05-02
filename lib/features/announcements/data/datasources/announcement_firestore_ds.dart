@@ -11,17 +11,30 @@ class AnnouncementFirestoreDataSource {
 
   /// Get announcements stream filtered by user roles and optional category
   /// Returns real-time updates via Firestore snapshots
+  /// Admins and moderators see all announcements regardless of targetAudience
   Stream<List<AnnouncementModel>> getAnnouncementsStream({
     required List<String> userRoles,
     String? category,
     int limit = 50,
   }) {
     try {
+      // Check if user is admin or moderator
+      final isAdmin =
+          userRoles.contains('admin') || userRoles.contains('moderator');
+
       Query<Map<String, dynamic>> query = _firestore
           .collection('announcements')
-          .where('targetAudience', arrayContainsAny: userRoles)
           .orderBy('createdAt', descending: true)
           .limit(limit);
+
+      // Only filter by targetAudience if user is not admin/moderator
+      if (!isAdmin && userRoles.isNotEmpty) {
+        query = _firestore
+            .collection('announcements')
+            .where('targetAudience', arrayContainsAny: userRoles)
+            .orderBy('createdAt', descending: true)
+            .limit(limit);
+      }
 
       if (category != null && category.isNotEmpty && category != 'All') {
         query = query.where('category', isEqualTo: category);

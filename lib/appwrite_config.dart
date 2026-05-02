@@ -9,6 +9,9 @@ class AppwriteConfig {
   static String get chatAttachmentsBucketId =>
       dotenv.env['APPWRITE_CHAT_ATTACHMENTS_BUCKET_ID'] ?? 'chat_attachments';
 
+  // Reuse chat_attachments bucket for announcements (free tier has 1 bucket limit)
+  static String get announcementAttachmentsBucketId => chatAttachmentsBucketId;
+
   /// Singleton instance of Appwrite Client
   static Client? _client;
 

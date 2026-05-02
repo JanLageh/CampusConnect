@@ -153,4 +153,35 @@ class AppwriteStorageService {
       rethrow;
     }
   }
+
+  /// Upload an image to the attachments bucket and return the public view URL.
+  /// Uses the same bucket as chat attachments (free tier limitation).
+  ///
+  /// [file] - The image file to upload
+  /// [fileId] - Unique ID for the file (use ID.unique() for auto-generation)
+  Future<String> uploadAnnouncementImage({
+    required InputFile file,
+    required String fileId,
+  }) async {
+    try {
+      final bucketId = AppwriteConfig.announcementAttachmentsBucketId;
+
+      // Upload the file with public read permissions
+      await uploadFile(
+        bucketId: bucketId,
+        fileId: fileId,
+        file: file,
+        permissions: [
+          'read("any")', // Allow anyone to read the file
+        ],
+      );
+
+      // Return the public view URL
+      return getFileView(bucketId: bucketId, fileId: fileId);
+    } catch (e) {
+      // ignore: avoid_print
+      print('Failed to upload announcement image: $e');
+      rethrow;
+    }
+  }
 }
