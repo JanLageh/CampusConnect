@@ -1,0 +1,91 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/announcement_form_provider.dart';
+
+/// Step 1: Basics - Title, Body, Urgent, Pinned
+class Step1Basics extends ConsumerWidget {
+  const Step1Basics({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formState = ref.watch(announcementFormProvider);
+    final formNotifier = ref.read(announcementFormProvider.notifier);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title field
+          TextField(
+            controller: TextEditingController(text: formState.title)
+              ..selection = TextSelection.collapsed(
+                offset: formState.title.length,
+              ),
+            decoration: InputDecoration(
+              labelText: 'Title *',
+              hintText: 'Enter announcement title',
+              border: const OutlineInputBorder(),
+              errorText: formState.title.isEmpty && formState.currentStep > 0
+                  ? 'Title is required'
+                  : null,
+            ),
+            maxLength: 100,
+            onChanged: formNotifier.updateTitle,
+          ),
+          const SizedBox(height: 16),
+
+          // Body field
+          TextField(
+            controller: TextEditingController(text: formState.body)
+              ..selection = TextSelection.collapsed(
+                offset: formState.body.length,
+              ),
+            decoration: InputDecoration(
+              labelText: 'Body *',
+              hintText: 'Enter announcement content',
+              border: const OutlineInputBorder(),
+              helperText: '${formState.body.length}/500 characters',
+              errorText: formState.body.isEmpty && formState.currentStep > 0
+                  ? 'Body is required'
+                  : formState.body.length > 500
+                  ? 'Body cannot exceed 500 characters'
+                  : null,
+            ),
+            maxLines: 6,
+            maxLength: 500,
+            onChanged: formNotifier.updateBody,
+          ),
+          const SizedBox(height: 24),
+
+          // Urgent checkbox
+          CheckboxListTile(
+            title: const Text('Mark as Urgent'),
+            subtitle: const Text('Displays with warning styling'),
+            value: formState.isUrgent,
+            onChanged: (value) {
+              if (value != null) {
+                formNotifier.updateIsUrgent(value);
+              }
+            },
+            contentPadding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 8),
+
+          // Pinned checkbox
+          CheckboxListTile(
+            title: const Text('Pin to Top'),
+            subtitle: const Text('Keeps announcement at the top of the list'),
+            value: formState.isPinned,
+            onChanged: (value) {
+              if (value != null) {
+                formNotifier.updateIsPinned(value);
+              }
+            },
+            contentPadding: EdgeInsets.zero,
+          ),
+        ],
+      ),
+    );
+  }
+}

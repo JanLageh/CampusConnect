@@ -1,13 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'app/app_root.dart';
-import 'auth/data/firebase_auth_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'app/app_root_riverpod.dart';
+import 'app/routes.dart';
 import 'firebase_options.dart';
+import 'appwrite_config.dart';
+import 'core/utils/app_logger.dart';
+import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await dotenv.load(fileName: '.env');
+
+  // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MainApp());
+
+  // Initialize and ping Appwrite to verify connectivity
+  try {
+    await AppwriteConfig.ping();
+  } catch (e) {
+    AppLogger.warning('Could not connect to Appwrite', error: e);
+  }
+
+  runApp(const ProviderScope(child: MainApp()));
 }
 
 class MainApp extends StatelessWidget {
@@ -17,7 +35,14 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AppRoot(authRepository: FirebaseAuthRepository()),
+      title: 'Campus Connect',
+      theme: AppTheme.lightTheme,
+      // Use AppRootRiverpod as the home widget (handles auth gate)
+      home: const AppRootRiverpod(),
+      // Configure route generator for named navigation
+      onGenerateRoute: AppRouteGenerator.generateRoute,
+      // Set initial route
+      initialRoute: '/',
     );
   }
 }

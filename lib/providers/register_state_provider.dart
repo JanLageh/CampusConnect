@@ -1,0 +1,115 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../auth/domain/exceptions/auth_exception.dart';
+import '../auth/domain/exceptions/validation_exception.dart';
+import '../auth/domain/exceptions/network_exception.dart';
+import '../auth/domain/exceptions/service_exception.dart';
+import '../auth/domain/exceptions/user_exception.dart';
+import '../auth/presentation/utils/error_message_mapper.dart';
+import 'auth_providers.dart';
+
+/// State class for register screen
+class RegisterState {
+  final bool isLoading;
+  final String? errorMessage;
+  final bool isSuccess;
+
+  const RegisterState({
+    this.isLoading = false,
+    this.errorMessage,
+    this.isSuccess = false,
+  });
+
+  RegisterState copyWith({
+    bool? isLoading,
+    String? errorMessage,
+    bool? isSuccess,
+  }) {
+    return RegisterState(
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage,
+      isSuccess: isSuccess ?? this.isSuccess,
+    );
+  }
+}
+
+/// Notifier for managing register state and operations
+class RegisterNotifier extends Notifier<RegisterState> {
+  @override
+  RegisterState build() => const RegisterState();
+
+  /// Register with full name, email, student ID, and password
+  Future<bool> register({
+    required String fullName,
+    required String email,
+    required String studentId,
+    required String password,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final authService = ref.read(authServiceProvider);
+
+      await authService.register(
+        fullName: fullName,
+        email: email,
+        studentId: studentId,
+        password: password,
+      );
+
+      state = state.copyWith(isLoading: false, isSuccess: true);
+      return true;
+    } on ValidationException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: ErrorMessageMapper.mapValidationException(e),
+        isSuccess: false,
+      );
+      return false;
+    } on AuthException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: ErrorMessageMapper.mapAuthException(e),
+        isSuccess: false,
+      );
+      return false;
+    } on UserException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: ErrorMessageMapper.mapUserException(e),
+        isSuccess: false,
+      );
+      return false;
+    } on NetworkException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: ErrorMessageMapper.mapNetworkException(e),
+        isSuccess: false,
+      );
+      return false;
+    } on ServiceException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: ErrorMessageMapper.mapServiceException(e),
+        isSuccess: false,
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: ErrorMessageMapper.mapException(e),
+        isSuccess: false,
+      );
+      return false;
+    }
+  }
+
+  /// Clear error message
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
+  }
+}
+
+/// Provider for the register state notifier
+final registerProvider = NotifierProvider<RegisterNotifier, RegisterState>(() {
+  return RegisterNotifier();
+});
